@@ -25,9 +25,12 @@ class User {
 
     static buscarPorEmail(email) {
         return new Promise((resolve, reject) => {
-            db.query('SELECT * FROM usuarios WHERE email = ?', [email], (err, result) => {
+            db.query('SELECT id, nombre, email, password, rol FROM usuarios WHERE email = ?', [email], (err, result) => {
                 if (err) reject(err);
-                else resolve(result[0]);
+                else {
+                    console.log('Resultado de la consulta:', result); // <-- Verificar si viene `rol`
+                    resolve(result[0]);
+                }
             });
         });
     }

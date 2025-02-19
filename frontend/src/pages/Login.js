@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { login } from "../services/authService"; // Importamos la función de login
 import { Mail, Lock, ArrowRight, AlertCircle } from "lucide-react";
 
 const Login = () => {
@@ -12,10 +13,24 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => {
-      navigate("/dashboard");
+    setError("");
+
+    try {
+      const response = await login(email.trim(), password.trim());
+
+      if (response.token) {
+        localStorage.setItem("token", response.token);
+        localStorage.setItem("role", response.role); // Guardamos el rol
+
+        navigate("/dashboard"); // Redirigir si el login es exitoso
+      } else {
+        setError(response.error || "Credenciales inválidas"); // Manejo de error
+      }
+    } catch (err) {
+      setError("Error al conectar con el servidor");
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -27,7 +42,7 @@ const Login = () => {
       <div className="relative z-10 w-full max-w-md p-8 bg-black/40 backdrop-blur-md rounded-2xl shadow-lg border border-orange-500/50">
         
         <h2 className="text-center text-3xl font-bold text-orange-400 mb-4">
-          Bienvenido a Jelcom 👋
+          Bienvenido a Jelcom
         </h2>
         <p className="text-center text-gray-300 mb-6">
           Ingresa tus credenciales para continuar
@@ -106,4 +121,5 @@ const Login = () => {
 };
 
 export default Login;
+
 

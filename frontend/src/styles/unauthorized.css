@@ -1,0 +1,36 @@
+.unauthorized-container {
+    text-align: center;
+    padding: 50px;
+    background-color: #fff;
+    color: #e67300;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .unauthorized-container h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+  
+  .unauthorized-container p {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+  }
+  
+  .unauthorized-container button {
+    background-color: #e67300;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .unauthorized-container button:hover {
+    background-color: #cc5a00;
+  }
+  
