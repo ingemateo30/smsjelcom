@@ -81,7 +81,7 @@ exports.solicitarRecuperacion = async (req, res) => {
         );
 
         // Enviar correo con el enlace de recuperación
-        const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
+        const resetLink = `http://localhost:3001/reset-password?token=${resetToken}`;
         console.log("Enviando correo a:", email);
 
         await transporter.sendMail({

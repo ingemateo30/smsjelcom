@@ -21,7 +21,7 @@ export const login = async (email, password) => {
 
 export const logout = () => {
   localStorage.removeItem("token");
-  localStorage.removeItem("rol"); // Eliminar el rol al cerrar sesión
+  localStorage.removeItem("rol");
 };
 
 export const getToken = () => {
@@ -29,6 +29,26 @@ export const getToken = () => {
 };
 
 export const getUserRole = () => {
-  return localStorage.getItem("rol") || null; // Obtener el rol almacenado
+  return localStorage.getItem("rol") || null;
+};
+
+/** ✅ SOLICITAR RECUPERACIÓN DE CONTRASEÑA */
+export const solicitarRecuperacion = async (email) => {
+  try {
+    const response = await axios.post(`${API_URL}/forgot-password`, { email });
+    return response.data;
+  } catch (error) {
+    return { error: error.response?.data?.message || "Error al solicitar recuperación" };
+  }
+};
+
+/** ✅ RESETEAR CONTRASEÑA */
+export const resetearPassword = async (token, newPassword) => {
+  try {
+    const response = await axios.post(`${API_URL}/reset-password`, { token, newPassword });
+    return response.data;
+  } catch (error) {
+    return { error: error.response?.data?.message || "Error al restablecer contraseña" };
+  }
 };
 

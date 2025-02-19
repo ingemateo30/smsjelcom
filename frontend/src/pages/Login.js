@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { login } from "../services/authService"; // Importamos la función de login
 import { Mail, Lock, ArrowRight, AlertCircle } from "lucide-react";
 
@@ -106,13 +107,13 @@ const Login = () => {
 
           {/* Recuperar contraseña */}
           <div className="text-center">
-            <a
-              href="#"
-              className="text-sm text-orange-400 hover:text-orange-300 transition-colors"
-            >
-              ¿Olvidaste tu contraseña?
-            </a>
-          </div>
+  <Link
+    to="/forgot-password"
+    className="text-sm text-orange-400 hover:text-orange-300 transition-colors"
+  >
+    ¿Olvidaste tu contraseña?
+  </Link>
+</div>
 
         </form>
       </div>
