@@ -6,6 +6,7 @@ const db = require('./config/db');
 
 // Importar rutas
 const authRoutes = require('./routes/auth');
+const citasRoutes = require("./routes/citas");
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 
 // Rutas
 app.use('/api/auth', authRoutes);
+app.use("/api/citas", citasRoutes);
 
 // Servidor
 const PORT = process.env.PORT || 5000;
