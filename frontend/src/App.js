@@ -6,6 +6,7 @@ import Unauthorized from "./pages/unauthorized";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import UploadExcel from "./pages/UploadExcel";
+import DashboardHome from "./pages/DashboardHome";
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
         {/* Rutas protegidas para cualquier usuario autenticado */}
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />}>
+          <Route index element={<DashboardHome />} />
             <Route path="subir-excel" element={<UploadExcel />} />
             <Route path="usuarios" element={<h1>Gestión de Usuarios</h1>} />
             <Route path="configuracion" element={<h1>Configuración</h1>} />
