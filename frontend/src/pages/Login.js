@@ -26,11 +26,9 @@ const Login = () => {
           setIsLoading(false);
           return;
         }
-
-        sessionStorage.setItem("token", response.token); // Usar sessionStorage por seguridad
-        sessionStorage.setItem("role", response.role); // Guardamos el rol
-
-        navigate("/dashboard"); // Redirigir si el login es exitoso
+        sessionStorage.setItem("token", response.token);
+        sessionStorage.setItem("role", response.role);
+        navigate("/dashboard");
       } else {
         setError(response.error || "Credenciales inválidas");
       }

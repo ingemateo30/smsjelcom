@@ -49,6 +49,16 @@ class User {
             );
         });
     }
+
+    static listarUsuarios() {
+        return new Promise((resolve, reject) => {
+            db.query('SELECT id, nombre, email, rol, estado FROM usuarios', (err, result) => {
+                if (err) reject(err);
+                else resolve(result);
+            });
+        });
+    }
+
 }
 
 module.exports = User;

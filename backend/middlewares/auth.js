@@ -1,16 +1,24 @@
 const jwt = require('jsonwebtoken');
+
 const verificarRol = (rolesPermitidos) => (req, res, next) => {
   const token = req.header('Authorization');
-  if (!token) return res.status(403).send('Acceso denegado');
+
+  if (!token) {
+    return res.status(403).json({ message: 'Acceso denegado. Token requerido.' });
+  }
+
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token.replace('Bearer ', ''), process.env.JWT_SECRET); // Quitar "Bearer " si está presente
+
     if (!rolesPermitidos.includes(decoded.rol)) {
-      return res.status(403).send('Permiso insuficiente');
+      return res.status(403).json({ message: 'Permiso insuficiente' });
     }
+
     req.user = decoded;
     next();
   } catch (error) {
-    res.status(400).send('Token inválido');
+    return res.status(400).json({ message: 'Token inválido' });
   }
 };
+
 module.exports = { verificarRol };

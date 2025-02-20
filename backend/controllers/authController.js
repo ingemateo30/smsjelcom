@@ -131,4 +131,28 @@ exports.resetearPassword = async (req, res) => {
         res.status(500).json({ message: 'Error en el servidor' });
     }
 };
+exports.listarUsuarios = async (req, res) => {
+    try {
+        const usuarios = await User.listarUsuarios();
+        res.status(200).json(usuarios);
+    } catch (error) {
+        console.error('Error al obtener usuarios:', error);
+        res.status(500).json({ message: 'Error en el servidor' });
+    }
+};
+exports.actualizarEstado = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { estado } = req.body;
+
+        if (estado !== "activo" && estado !== "inactivo") {
+            return res.status(400).json({ message: "Estado inválido" });
+        }
+
+        await User.actualizarEstado(id, estado);
+        res.json({ message: `Usuario ${estado} correctamente` });
+    } catch (error) {
+        res.status(500).json({ message: "Error al actualizar el estado", error });
+    }
+};
 
