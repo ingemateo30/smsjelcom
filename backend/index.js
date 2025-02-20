@@ -1,4 +1,6 @@
 require("dotenv").config();
+require("./config/cronJobs");
+
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
@@ -7,6 +9,7 @@ const db = require("./config/db");
 // Importar rutas
 const authRoutes = require("./routes/auth");
 const citasRoutes = require("./routes/citas");
+const correoroutes = require("./routes/correo");
 
 const app = express();
 
@@ -27,6 +30,7 @@ db.getConnection((err, connection) => {
 // Rutas
 app.use("/api/auth", authRoutes);
 app.use("/api/citas", citasRoutes);
+app.use("/api/correo", correoroutes);
 
 // Middleware de manejo de errores
 app.use((err, req, res, next) => {

@@ -9,12 +9,15 @@ import {
   FaUsers,
   FaChevronLeft,
   FaUpload,
+  FaPaperPlane,
 } from "react-icons/fa";
 import logo from "../assets/logos-jelcom.png";
+import { sendReminderEmails } from "../services/emailService";
 
 const Dashboard = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [role, setRole] = useState("");
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,6 +32,12 @@ const Dashboard = () => {
   const handleLogout = () => {
     localStorage.clear();
     navigate("/");
+  };
+
+  const handleSendReminders = async () => {
+    setMessage("Enviando recordatorios...");
+    const result = await sendReminderEmails();
+    setMessage(result.message);
   };
 
   return (
@@ -96,6 +105,16 @@ const Dashboard = () => {
         </header>
 
         <section className="flex-1 p-8">
+          <div className="flex flex-col items-start">
+            <button
+              onClick={handleSendReminders}
+              className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg flex items-center space-x-2"
+            >
+              <FaPaperPlane />
+              <span>Enviar Recordatorios</span>
+            </button>
+            {message && <p className="mt-2 text-gray-300">{message}</p>}
+          </div>
           <Outlet />
         </section>
       </main>
