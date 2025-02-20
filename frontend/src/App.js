@@ -8,11 +8,13 @@ import ResetPassword from "./pages/ResetPassword";
 import UploadExcel from "./pages/UploadExcel";
 import DashboardHome from "./pages/DashboardHome";
 import RegisterUser from "./pages/RegisterUser";
+import LandingPage from "./pages/LandingPage";
 
 const App = () => {
   return (
     <Router>
       <Routes>
+      <Route path="/" element={<LandingPage />} /> {/* La landing es la principal */}
         <Route path="/login" element={<Login />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />

@@ -3,7 +3,6 @@ const xlsx = require("xlsx");
 const path = require("path");
 const db = require("../config/db");
 
-// Configuración de almacenamiento con Multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, "uploads/");
@@ -39,17 +38,32 @@ const procesarExcel = async (req, res) => {
                 TELEFONO_FIJO
             } = row;
 
-            // Convertir FECHA_CITA al formato correcto (YYYY-MM-DD)
+            if (!NUMERO_IDE || !NOMBRE || !FECHA_CITA || !HORA_CITA) {
+                console.warn(`Fila con datos incompletos:`, row);
+                continue; 
+            }
+ 
+            NUMERO_IDE = NUMERO_IDE.toString().trim();
+            TELEFONO_FIJO = TELEFONO_FIJO ? TELEFONO_FIJO.toString().trim() : null;
+
+            if (!/^\d+$/.test(NUMERO_IDE)) {
+                console.warn(`Número de identificación inválido en fila:`, row);
+                continue;
+            }
+
+            if (TELEFONO_FIJO && !/^\d{7,10}$/.test(TELEFONO_FIJO)) {
+                console.warn(`Teléfono inválido en fila:`, row);
+                TELEFONO_FIJO = null;
+            }
+
             if (FECHA_CITA) {
                 if (typeof FECHA_CITA === "number") {
                     const excelDate = new Date((FECHA_CITA - 25569) * 86400 * 1000);
-                    FECHA_CITA = excelDate.toISOString().split("T")[0]; // YYYY-MM-DD
+                    FECHA_CITA = excelDate.toISOString().split("T")[0];
                 } else {
                     const [day, month, year] = FECHA_CITA.split("/");
                     FECHA_CITA = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
                 }
-            } else {
-                FECHA_CITA = null;
             }
 
             // Convertir HORA_CITA al formato correcto (HH:MM:SS)
@@ -61,27 +75,31 @@ const procesarExcel = async (req, res) => {
                     let seconds = totalSeconds % 60;
                     HORA_CITA = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
                 } else if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(HORA_CITA)) {
-                    HORA_CITA = HORA_CITA.padEnd(8, ":00"); // Asegura que tenga formato HH:MM:SS
+                    HORA_CITA = HORA_CITA.padEnd(8, ":00");
                 } else {
                     HORA_CITA = null;
                 }
-            } else {
-                HORA_CITA = null;
             }
 
-            // Insertar en la BD
-            await db.promise().query(
-                `INSERT INTO CITAS (ATENCION, FECHA_CITA, HORA_CITA, SERVICIO, PROFESIONAL, 
-                TIPO_IDE_PACIENTE, NUMERO_IDE, NOMBRE, TELEFONO_FIJO) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [ATENCION, FECHA_CITA, HORA_CITA, SERVICIO, PROFESIONAL, TIPO_IDE_PACIENTE, NUMERO_IDE, NOMBRE, TELEFONO_FIJO]
-            );
+            try {
+                // Insertar en la BD
+                await db.query(
+                    `INSERT INTO CITAS (ATENCION, FECHA_CITA, HORA_CITA, SERVICIO, PROFESIONAL, 
+                    TIPO_IDE_PACIENTE, NUMERO_IDE, NOMBRE, TELEFONO_FIJO) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [ATENCION, FECHA_CITA, HORA_CITA, SERVICIO, PROFESIONAL, TIPO_IDE_PACIENTE, NUMERO_IDE, NOMBRE, TELEFONO_FIJO]
+                );
+            } catch (dbError) {
+                console.error("Error al insertar en la base de datos:", dbError);
+                continue;
+            }
         }
 
         res.json({ message: "Archivo procesado y datos almacenados correctamente" });
     } catch (error) {
-        console.error(error);
+        console.error("Error al procesar el archivo:", error);
         res.status(500).json({ message: "Error al procesar el archivo" });
     }
 };
 
 module.exports = { upload, procesarExcel };
+

@@ -17,16 +17,30 @@ const UploadExcel = () => {
             setMessage("Por favor selecciona un archivo.");
             return;
         }
-
+    
         const formData = new FormData();
         formData.append("file", file);
-
+    
+        const token = localStorage.getItem("token"); // Obtener el token del localStorage
+    
+        if (!token) {
+            setMessage("No tienes un token de autenticación. Inicia sesión nuevamente.");
+            return;
+        }
+    
         try {
             setIsLoading(true);
-            const response = await axios.post("http://localhost:3000/api/citas/subir-excel", formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-            });
-
+            const response = await axios.post(
+                "http://localhost:3000/api/citas/subir-excel",
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        "Authorization": `Bearer ${token}`, // Agregar el token aquí
+                    },
+                }
+            );
+    
             setMessage(response.data.message);
         } catch (error) {
             setMessage(error.response?.data?.message || "Error al subir el archivo.");
@@ -34,7 +48,7 @@ const UploadExcel = () => {
             setIsLoading(false);
         }
     };
-
+    
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4">
             <div className="w-full max-w-md bg-slate-800/50 backdrop-blur-lg rounded-2xl shadow-xl border border-slate-700/30 p-8">

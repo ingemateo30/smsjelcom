@@ -1,9 +1,21 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ShieldX, LogIn } from 'lucide-react';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { ShieldX, LogIn } from "lucide-react";
 
 const Unauthorized = () => {
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Eliminar los datos de sesión del almacenamiento local
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    // También puedes limpiar sessionStorage si lo usaste
+    sessionStorage.clear();
+
+    // Redirigir al usuario al login
+    navigate("/login");
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4">
@@ -21,7 +33,7 @@ const Unauthorized = () => {
         </div>
 
         <button
-          onClick={() => navigate("/login")}
+          onClick={handleLogout} // Llamamos la función al hacer clic
           className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-3.5 px-6 rounded-lg font-medium flex items-center justify-center gap-2 transition-all duration-300"
         >
           <LogIn className="w-5 h-5" />

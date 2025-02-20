@@ -1,7 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { getToken, getUserRole } from "../services/authService";
 import { useState, useEffect } from "react";
-import UploadExcel from "../pages/UploadExcel";
 
 const PrivateRoute = ({ requiredRole }) => {
   const [loading, setLoading] = useState(true);
@@ -11,27 +10,40 @@ const PrivateRoute = ({ requiredRole }) => {
   useEffect(() => {
     const token = getToken();
     const role = getUserRole();
-    if (token) {
+
+    if (token && role) {
       setIsAuthenticated(true);
       setUserRole(role);
+    } else {
+      setIsAuthenticated(false);
     }
+
     setLoading(false);
   }, []);
 
   if (loading) {
-    return <div>Cargando...</div>; // O un spinner de carga
+    return <div className="flex justify-center items-center h-screen">
+      <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+    </div>;
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
 
-  if (requiredRole && userRole !== requiredRole) {
-    return <Navigate to="/unauthorized" />; // Ruta a página de acceso denegado
+  if (requiredRole) {
+    if (Array.isArray(requiredRole)) {
+      if (!requiredRole.includes(userRole)) {
+        return <Navigate to="/unauthorized" replace />;
+      }
+    } else if (userRole !== requiredRole) {
+      return <Navigate to="/unauthorized" replace />;
+    }
   }
 
   return <Outlet />;
 };
 
 export default PrivateRoute;
+
 

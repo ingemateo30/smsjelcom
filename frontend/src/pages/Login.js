@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { login } from "../services/authService"; // Importamos la función de login
+import { login } from "../services/authService";
 import { Mail, Lock, ArrowRight, AlertCircle, Eye, EyeOff } from "lucide-react";
 
 const Login = () => {
@@ -41,12 +41,9 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black relative overflow-hidden">
-      {/* Fondo con efecto de iluminación */}
       <div className="absolute inset-0 bg-gradient-to-br from-orange-600/20 to-black opacity-90"></div>
 
-      {/* Contenedor del login */}
       <div className="relative z-10 w-full max-w-md p-8 bg-black/40 backdrop-blur-md rounded-2xl shadow-lg border border-orange-500/50">
-        
         <h2 className="text-center text-3xl font-bold text-orange-400 mb-4">
           Bienvenido a Jelcom
         </h2>
@@ -54,10 +51,7 @@ const Login = () => {
           Ingresa tus credenciales para continuar
         </p>
 
-        {/* Formulario */}
         <form onSubmit={handleLogin} className="space-y-6">
-          
-          {/* Input Email */}
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-orange-400 w-5 h-5" />
             <input
@@ -70,7 +64,6 @@ const Login = () => {
             />
           </div>
 
-          {/* Input Contraseña con visibilidad */}
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-orange-400 w-5 h-5" />
             <input
@@ -90,7 +83,6 @@ const Login = () => {
             </button>
           </div>
 
-          {/* Botón de Login */}
           <button
             type="submit"
             disabled={isLoading}
@@ -109,7 +101,6 @@ const Login = () => {
             )}
           </button>
 
-          {/* Mensaje de error */}
           {error && (
             <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
@@ -117,7 +108,6 @@ const Login = () => {
             </div>
           )}
 
-          {/* Recuperar contraseña */}
           <div className="text-center">
             <Link
               to="/forgot-password"

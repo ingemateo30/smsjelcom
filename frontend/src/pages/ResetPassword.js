@@ -1,6 +1,6 @@
-import { useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Lock, ArrowRight, AlertCircle, CheckCircle } from "lucide-react";
+import { useState } from "react";
 
 const ResetPassword = () => {
     const [searchParams] = useSearchParams();
@@ -8,22 +8,36 @@ const ResetPassword = () => {
 
     const [newPassword, setNewPassword] = useState("");
     const [message, setMessage] = useState("");
+    const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setMessage("");
+        setError("");
+
+        if (!newPassword || newPassword.length < 6) {
+            setError("La contraseña debe tener al menos 6 caracteres.");
+            return;
+        }
+
         setIsLoading(true);
         try {
             const response = await fetch("http://localhost:3000/api/auth/reset-password", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ token, newPassword })
+                body: JSON.stringify({ token, newPassword }),
             });
 
             const data = await response.json();
-            setMessage(data.message);
+            if (!response.ok) throw new Error(data.message || "Error al restablecer la contraseña.");
+
+            setMessage("Contraseña restablecida con éxito.");
+            setNewPassword("");
+
+            setTimeout(() => setMessage(""), 3000); // Ocultar mensaje después de 3s
         } catch (error) {
-            setMessage("Error al restablecer la contraseña.");
+            setError(error.message);
         } finally {
             setIsLoading(false);
         }

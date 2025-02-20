@@ -5,19 +5,31 @@ const RegisterUser = () => {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchUsers();
   }, []);
 
   const fetchUsers = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("No tienes un token de autenticación. Inicia sesión.");
+      return;
+    }
+
     try {
-      const response = await fetch("http://localhost:3000/api/auth/usuarios");
+      setLoading(true);
+      const response = await fetch("http://localhost:3000/api/auth/usuarios", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (!response.ok) throw new Error("Error al obtener usuarios");
       const data = await response.json();
       setUsers(data);
     } catch (error) {
       setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -29,52 +41,67 @@ const RegisterUser = () => {
     e.preventDefault();
     setError("");
     setSuccess("");
+
     if (!formData.nombre || !formData.email || !formData.password) {
       setError("Todos los campos son obligatorios");
       return;
     }
+
     try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
       const response = await fetch("http://localhost:3000/api/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(formData),
       });
+
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Error en el registro");
+
       setSuccess("Usuario registrado con éxito");
       setFormData({ nombre: "", email: "", password: "" });
       fetchUsers();
     } catch (error) {
       setError(error.message);
+    } finally {
+      setLoading(false);
+      setTimeout(() => setSuccess(""), 3000); // Ocultar mensaje de éxito después de 3s
     }
   };
 
   const toggleUserStatus = async (id, estado) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("No tienes un token de autenticación. Inicia sesión.");
+      return;
+    }
+
     try {
       const nuevoEstado = estado === "activo" ? "inactivo" : "activo";
-      
       const response = await fetch(`http://localhost:3000/api/auth/usuarios/${id}/estado`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ estado: nuevoEstado }),
       });
-  
-      if (!response.ok) {
-        throw new Error("Error al actualizar el estado del usuario");
-      }
-  
-      // Actualizar el estado localmente sin recargar la lista completa
+
+      if (!response.ok) throw new Error("Error al actualizar el estado del usuario");
+
+      // Actualizar el estado del usuario localmente
       setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user.id === id ? { ...user, estado: nuevoEstado } : user
-        )
+        prevUsers.map((user) => (user.id === id ? { ...user, estado: nuevoEstado } : user))
       );
-  
     } catch (error) {
-      console.error("Error al actualizar estado:", error);
+      setError(error.message);
     }
   };
-  
+ 
 
   return (
     <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-3xl mx-auto">
@@ -91,7 +118,7 @@ const RegisterUser = () => {
       <div className="overflow-x-auto">
         <table className="w-full bg-gray-700 text-white mt-2 rounded-lg border border-gray-600">
           <thead>
-            <tr className="bg-gray-500 text-left">
+            <tr className="bg-gray-900 text-left">
               <th className="py-2 px-4">Nombre</th>
               <th className="py-2 px-4">Email</th>
               <th className="py-2 px-4">Rol</th>

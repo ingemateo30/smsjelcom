@@ -1,15 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const { register, login } = require('../controllers/authController');
-const { listarUsuarios } = require('../controllers/authController');
-const { solicitarRecuperacion, resetearPassword } = require('../controllers/authController'); 
-const {actualizarEstado} = require("../controllers/authController");
+const {
+    register,
+    login,
+    listarUsuarios,
+    solicitarRecuperacion,
+    resetearPassword,
+    actualizarEstado
+} = require('../controllers/authController');
+const { verificarRol } = require('../middlewares/auth'); // Middleware para control de roles
 
+// Rutas públicas
 router.post('/register', register);
 router.post('/login', login);
-router.get('/usuarios', listarUsuarios);
 router.post('/forgot-password', solicitarRecuperacion);
 router.post('/reset-password', resetearPassword);
-router.put("/usuarios/:id/estado", actualizarEstado);
+
+// Rutas protegidas (requieren autenticación y permisos)
+router.get('/usuarios', verificarRol(['admin']), listarUsuarios);
+router.put('/usuarios/:id/estado', verificarRol(['admin']), actualizarEstado);
 
 module.exports = router;
+
