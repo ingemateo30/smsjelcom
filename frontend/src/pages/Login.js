@@ -2,13 +2,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { login } from "../services/authService"; // Importamos la función de login
-import { Mail, Lock, ArrowRight, AlertCircle } from "lucide-react";
+import { Mail, Lock, ArrowRight, AlertCircle, Eye, EyeOff } from "lucide-react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -20,12 +21,18 @@ const Login = () => {
       const response = await login(email.trim(), password.trim());
 
       if (response.token) {
-        localStorage.setItem("token", response.token);
-        localStorage.setItem("role", response.role); // Guardamos el rol
+        if (response.estado !== "activo") {
+          setError("Tu cuenta está desactivada. Contacta con el administrador.");
+          setIsLoading(false);
+          return;
+        }
+
+        sessionStorage.setItem("token", response.token); // Usar sessionStorage por seguridad
+        sessionStorage.setItem("role", response.role); // Guardamos el rol
 
         navigate("/dashboard"); // Redirigir si el login es exitoso
       } else {
-        setError(response.error || "Credenciales inválidas"); // Manejo de error
+        setError(response.error || "Credenciales inválidas");
       }
     } catch (err) {
       setError("Error al conectar con el servidor");
@@ -65,17 +72,24 @@ const Login = () => {
             />
           </div>
 
-          {/* Input Contraseña */}
+          {/* Input Contraseña con visibilidad */}
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-orange-400 w-5 h-5" />
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Contraseña"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full pl-12 pr-4 py-3 bg-orange-500/10 backdrop-blur-md border border-orange-400/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full pl-12 pr-12 py-3 bg-orange-500/10 backdrop-blur-md border border-orange-400/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
+            <button
+              type="button"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-orange-400"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
           </div>
 
           {/* Botón de Login */}
@@ -107,14 +121,13 @@ const Login = () => {
 
           {/* Recuperar contraseña */}
           <div className="text-center">
-  <Link
-    to="/forgot-password"
-    className="text-sm text-orange-400 hover:text-orange-300 transition-colors"
-  >
-    ¿Olvidaste tu contraseña?
-  </Link>
-</div>
-
+            <Link
+              to="/forgot-password"
+              className="text-sm text-orange-400 hover:text-orange-300 transition-colors"
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </div>
         </form>
       </div>
     </div>
@@ -122,5 +135,6 @@ const Login = () => {
 };
 
 export default Login;
+
 
 

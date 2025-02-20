@@ -36,6 +36,11 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
 
+        
+        if (user.estado === 'inactivo') {
+            return res.status(403).json({ message: 'Tu cuenta está inactiva. Contacta al administrador.' });
+        }
+
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) {
             return res.status(401).json({ message: 'Credenciales inválidas' });
@@ -48,7 +53,8 @@ exports.login = async (req, res) => {
         res.status(200).json({ 
             message: 'Login exitoso', 
             token, 
-            rol: user.rol
+            rol: user.rol,
+            estado: user.estado
         });
 
     } catch (error) {
@@ -56,6 +62,7 @@ exports.login = async (req, res) => {
         res.status(500).json({ message: 'Error en el servidor' });
     }
 };
+
 exports.solicitarRecuperacion = async (req, res) => {
     const { email } = req.body;
     
