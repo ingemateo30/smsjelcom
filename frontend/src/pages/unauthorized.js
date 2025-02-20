@@ -6,14 +6,9 @@ const Unauthorized = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Eliminar los datos de sesión del almacenamiento local
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-
-    // También puedes limpiar sessionStorage si lo usaste
     sessionStorage.clear();
-
-    // Redirigir al usuario al login
     navigate("/login");
   };
 
@@ -33,7 +28,7 @@ const Unauthorized = () => {
         </div>
 
         <button
-          onClick={handleLogout} // Llamamos la función al hacer clic
+          onClick={handleLogout} 
           className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-3.5 px-6 rounded-lg font-medium flex items-center justify-center gap-2 transition-all duration-300"
         >
           <LogIn className="w-5 h-5" />
