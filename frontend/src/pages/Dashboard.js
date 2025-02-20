@@ -27,32 +27,36 @@ const Dashboard = () => {
       {/* Sidebar */}
       <aside className={`${isCollapsed ? 'w-20' : 'w-64'} bg-gray-800/50 backdrop-blur-lg border-r border-gray-700 transition-all duration-300 ease-in-out`}>
         <div className="p-4 flex justify-between items-center border-b border-gray-700">
-          <img 
-            src={logo} 
-            alt="Jelcom Logo" 
+          <img
+            src={logo}
+            alt="Jelcom Logo"
             className={`h-10 transition-opacity ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100 w-auto'}`}
           />
-          <button 
+          <button
             onClick={() => setIsCollapsed(!isCollapsed)}
             className="p-2 hover:bg-gray-700 rounded-lg text-gray-400 hover:text-white transition-colors"
           >
-            {isCollapsed ? <FaBars /> : <FaChevronLeft className="transform transition-transform hover:-translate-x-1"/>}
+            {isCollapsed ? <FaBars /> : <FaChevronLeft className="transform transition-transform hover:-translate-x-1" />}
           </button>
         </div>
-        
+
         <nav className="p-4 space-y-2">
+        {role === 'admin' && (
           <button onClick={() => navigate("/dashboard")} className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700/50 text-gray-300 hover:text-white transition-all">
             <FaHome className="flex-shrink-0" />
             {!isCollapsed && <span className="text-sm">Inicio</span>}
           </button>
-          
+)}
           {role === 'admin' && (
-            <button className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700/50 text-gray-300 hover:text-white transition-all">
+            <button
+              onClick={() => navigate("/dashboard/usuarios")}
+              className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700/50 text-gray-300 hover:text-white transition-all"
+            >
               <FaUsers className="flex-shrink-0" />
               {!isCollapsed && <span className="text-sm">Usuarios</span>}
             </button>
           )}
-          
+
           <button className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700/50 text-gray-300 hover:text-white transition-all">
             <FaCog className="flex-shrink-0" />
             {!isCollapsed && <span className="text-sm">Configuración</span>}
@@ -82,13 +86,13 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-4">
             <button className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700/50 text-gray-300 hover:text-white transition-colors">
               <FaUser />
               <span>Perfil</span>
             </button>
-            <button 
+            <button
               onClick={handleLogout}
               className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-red-500 to-orange-500 rounded-lg text-white hover:opacity-90 transition-opacity"
             >
@@ -109,4 +113,3 @@ const Dashboard = () => {
 export default Dashboard;
 
 
-  

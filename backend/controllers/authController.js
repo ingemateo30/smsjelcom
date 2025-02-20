@@ -106,14 +106,12 @@ exports.resetearPassword = async (req, res) => {
 
     try {
         const [rows] = await db.promise().query('SELECT * FROM usuarios WHERE reset_token = ? AND reset_token_expiration > NOW()', [token]);
-        const usuario = rows[0]; // Extraer el usuario
+        const usuario = rows[0]; 
 
         if (!usuario) return res.status(400).json({ message: 'Token inválido o expirado' });
 
-        // Hashear la nueva contraseña
         const hashedPassword = await bcrypt.hash(newPassword, 10);
-        
-        // Actualizar la contraseña y limpiar el token
+
         await db.promise().query(
             'UPDATE usuarios SET password = ?, reset_token = NULL, reset_token_expiration = NULL WHERE id = ?', 
             [hashedPassword, usuario.id]

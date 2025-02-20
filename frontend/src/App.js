@@ -7,6 +7,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import UploadExcel from "./pages/UploadExcel";
 import DashboardHome from "./pages/DashboardHome";
+import RegisterUser from "./pages/RegisterUser";
 
 const App = () => {
   return (
@@ -17,12 +18,14 @@ const App = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* Rutas protegidas para cualquier usuario autenticado */}
+        {/* Rutas protegidas para usuarios autenticados */}
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />}>
-          <Route index element={<DashboardHome />} />
+            <Route index element={<DashboardHome />} />
             <Route path="subir-excel" element={<UploadExcel />} />
-            <Route path="usuarios" element={<h1>Gestión de Usuarios</h1>} />
+            <Route element={<PrivateRoute requiredRole="admin" />}>
+              <Route path="usuarios" element={<RegisterUser />} />
+            </Route>
             <Route path="configuracion" element={<h1>Configuración</h1>} />
           </Route>
         </Route>
@@ -37,6 +40,5 @@ const App = () => {
 };
 
 export default App;
-
 
 
