@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { getToken, getUserRole } from "../services/authService";
 import { useState, useEffect } from "react";
+import UploadExcel from "../pages/UploadExcel";
 
 const PrivateRoute = ({ requiredRole }) => {
   const [loading, setLoading] = useState(true);

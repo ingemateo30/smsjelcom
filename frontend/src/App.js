@@ -5,6 +5,7 @@ import PrivateRoute from "./routes/PrivateRoute";
 import Unauthorized from "./pages/unauthorized";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import UploadExcel from "./pages/UploadExcel";
 
 const App = () => {
   return (
@@ -17,7 +18,11 @@ const App = () => {
 
         {/* Rutas protegidas para cualquier usuario autenticado */}
         <Route element={<PrivateRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />}>
+            <Route path="subir-excel" element={<UploadExcel />} />
+            <Route path="usuarios" element={<h1>Gestión de Usuarios</h1>} />
+            <Route path="configuracion" element={<h1>Configuración</h1>} />
+          </Route>
         </Route>
 
         {/* Rutas protegidas SOLO para administradores */}
@@ -30,5 +35,6 @@ const App = () => {
 };
 
 export default App;
+
 
 
