@@ -1,59 +1,65 @@
-import { DataTypes } from "sequelize";
-import db from "../config/db.js";
+const db = require('../config/db.js');
 
-const Cita = db.define(
-  "Cita",
-  {
-    ID: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-    ATENCION: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    FECHA_CITA: {
-      type: DataTypes.DATEONLY,
-      allowNull: false,
-    },
-    HORA_CITA: {
-      type: DataTypes.TIME,
-      allowNull: false,
-    },
-    SERVICIO: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    PROFESIONAL: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    TIPO_IDE_PACIENTE: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    NUMERO_IDE: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    NOMBRE: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    TELEFONO_FIJO: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    CREATED_AT: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
-  },
-  {
-    tableName: "citas",
-    timestamps: false, // Ya tienes `CREATED_AT`, no necesitas timestamps de Sequelize
+const crearCita = async (nombre, fecha) => {
+  try {
+    const [result] = await db.query('INSERT INTO citas (nombre, fecha) VALUES (?, ?)', [nombre, fecha]);
+    return result.insertId;
+  } catch (error) {
+    console.error('Error al crear la cita:', error);
+    throw error;
   }
-);
+};
 
-export default Cita;
+// Obtener todas las citas
+const obtenerCitas = async () => {
+  try {
+    const [rows] = await db.query('SELECT * FROM citas');
+    return rows;
+  } catch (error) {
+    console.error('Error al obtener citas:', error);
+    throw error;
+  }
+};
+
+// Obtener una cita por ID
+const obtenerCitaPorId = async (id) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM citas WHERE id = ?', [id]);
+    return rows[0];
+  } catch (error) {
+    console.error('Error al obtener la cita:', error);
+    throw error;
+  }
+};
+
+// Actualizar una cita
+const actualizarCita = async (id, nombre, fecha) => {
+  try {
+    const [result] = await db.query('UPDATE citas SET nombre = ?, fecha = ? WHERE id = ?', [nombre, fecha, id]);
+    return result.affectedRows;
+  } catch (error) {
+    console.error('Error al actualizar la cita:', error);
+    throw error;
+  }
+};
+
+// Eliminar una cita
+const eliminarCita = async (id) => {
+  try {
+    const [result] = await db.query('DELETE FROM citas WHERE id = ?', [id]);
+    return result.affectedRows;
+  } catch (error) {
+    console.error('Error al eliminar la cita:', error);
+    throw error;
+  }
+};
+
+// Exportar funciones
+module.exports = {
+  crearCita,
+  obtenerCitas,
+  obtenerCitaPorId,
+  actualizarCita,
+  eliminarCita
+};
+

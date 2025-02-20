@@ -1,7 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { enviarRecordatorioCita } = require("../controllers/correoController");
+const { enviarRecordatoriosDiarios, obtenerEstadoCron } = require("../controllers/correoController");
+const { verificarRol } = require("../middlewares/auth");
 
-router.post("/enviar-recordatorio", enviarRecordatorioCita);
+// 🔹 Ruta protegida para ejecutar el cron manualmente
+router.get("/enviar-recordatorios", verificarRol(["admin", "usuario"]), enviarRecordatoriosDiarios);
+
+// 🔹 Ruta para obtener el estado del cron
+router.get("/estado-cron", verificarRol(["admin", "usuario"]), obtenerEstadoCron);
 
 module.exports = router;
+

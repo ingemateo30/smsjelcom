@@ -73,6 +73,7 @@ const Dashboard = () => {
           )}
           <SidebarButton icon={<FaCog />} text="Configuración" collapsed={isCollapsed} onClick={() => navigate("/dashboard/configuracion")} />
           <SidebarButton icon={<FaUpload />} text="Subir Excel" collapsed={isCollapsed} onClick={() => navigate("/dashboard/subir-excel")} />
+          <SidebarButton icon={<FaPaperPlane />} text="Enviar Correos" collapsed={isCollapsed} onClick={() => navigate("/dashboard/enviar-correos")} /> {/* ✅ Nuevo botón */}
         </nav>
       </aside>
 
@@ -104,19 +105,9 @@ const Dashboard = () => {
           </div>
         </header>
 
-        <section className="flex-1 p-8">
-          <div className="flex flex-col items-start">
-            <button
-              onClick={handleSendReminders}
-              className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg flex items-center space-x-2"
-            >
-              <FaPaperPlane />
-              <span>Enviar Recordatorios</span>
-            </button>
-            {message && <p className="mt-2 text-gray-300">{message}</p>}
-          </div>
+        
           <Outlet />
-        </section>
+  
       </main>
     </div>
   );
@@ -134,3 +125,4 @@ const SidebarButton = ({ icon, text, collapsed, onClick }) => (
 );
 
 export default Dashboard;
+

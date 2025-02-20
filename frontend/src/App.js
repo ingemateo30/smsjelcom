@@ -9,12 +9,13 @@ import UploadExcel from "./pages/UploadExcel";
 import DashboardHome from "./pages/DashboardHome";
 import RegisterUser from "./pages/RegisterUser";
 import LandingPage from "./pages/LandingPage";
+import SendEmails from "./pages/SendEmails"; // ✅ Importamos la nueva página
 
 const App = () => {
   return (
     <Router>
       <Routes>
-      <Route path="/" element={<LandingPage />} /> {/* La landing es la principal */}
+        <Route path="/" element={<LandingPage />} /> {/* La landing es la principal */}
         <Route path="/login" element={<Login />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -25,6 +26,7 @@ const App = () => {
           <Route path="/dashboard" element={<Dashboard />}>
             <Route index element={<DashboardHome />} />
             <Route path="subir-excel" element={<UploadExcel />} />
+            <Route path="enviar-correos" element={<SendEmails />} /> {/* ✅ Nueva ruta */}
             <Route element={<PrivateRoute requiredRole="admin" />}>
               <Route path="usuarios" element={<RegisterUser />} />
             </Route>
@@ -42,5 +44,6 @@ const App = () => {
 };
 
 export default App;
+
 
 

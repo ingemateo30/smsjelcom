@@ -1,56 +1,143 @@
-import nodemailer from "nodemailer";
-import Cita from "../models/cita.js";
-import dotenv from "dotenv";
-import { Op } from "sequelize";
+const nodemailer = require("nodemailer");
+const dotenv = require("dotenv");
+const db = require("../config/db");
+const cron = require("node-cron");
+const moment = require("moment-timezone");
 
 dotenv.config();
 
-// Configuración del servicio de correo
+const CRON_HORA_EJECUCION = "08:00"; // Hora de ejecución en formato HH:mm
+
+let estadoCron = {
+    ultimaEjecucion: null,
+    totalEnviados: 0,
+    totalErrores: 0,
+};
+
+// Configuración del transportador de correo
 const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
+    service: "gmail",
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
 });
 
-export const enviarRecordatoriosDiarios = async (req, res) => {
-  try {
-    // Obtener la fecha del día siguiente
-    const fechaManana = new Date();
-    fechaManana.setDate(fechaManana.getDate() + 1);
-    const fechaFormato = fechaManana.toISOString().split("T")[0];
+// Función para enviar recordatorios manual y automático
+exports.enviarRecordatoriosDiarios = async (req, res) => {
+    try {
+        console.log("📩 Iniciando envío de recordatorios...");
+        const fechaManana = moment().tz("America/Bogota").add(1, "day").format("YYYY-MM-DD");
 
-    // Buscar todas las citas para mañana
-    const citas = await Cita.findAll({
-      where: {
-        fecha: fechaFormato,
-        estado: { [Op.ne]: "recordatorio enviado" }, // Solo enviar si no se ha enviado antes
-      },
-    });
+        console.log("📅 Buscando citas para la fecha:", fechaManana);
 
-    if (citas.length === 0) {
-      return res.json({ message: "No hay citas para enviar recordatorios." });
+        const [citas] = await db.query(
+            `SELECT ID, NOMBRE, EMAIL, FECHA_CITA as fecha, HORA_CITA as hora 
+            FROM citas 
+            WHERE FECHA_CITA = ? 
+            AND estado != 'recordatorio enviado' 
+            AND email IS NOT NULL 
+            AND email NOT LIKE '%@temporal.com'`,
+            [fechaManana]
+        );
+
+        if (citas.length === 0) {
+            console.log("✅ No hay citas con correos válidos.");
+            estadoCron = { ultimaEjecucion: new Date(), totalEnviados: 0, totalErrores: 0 };
+            if (!req.fake) return res.json({ message: "No hay citas pendientes." });
+            return;
+        }
+
+        let recordatoriosEnviados = [];
+        let errores = [];
+
+        for (const cita of citas) {
+            try {
+                if (!isValidEmail(cita.EMAIL)) {
+                    errores.push({ citaId: cita.ID, error: "Formato de correo inválido" });
+                    continue;
+                }
+
+                await transporter.sendMail({
+                    from: process.env.EMAIL_USER,
+                    to: cita.EMAIL,
+                    subject: "📅 Recordatorio de Cita Médica",
+                    html: generarHtmlRecordatorio(cita.NOMBRE, cita.fecha, cita.hora),
+                });
+
+                await db.query("UPDATE citas SET estado = 'recordatorio enviado' WHERE ID = ?", [cita.ID]);
+                recordatoriosEnviados.push(cita.ID);
+            } catch (error) {
+                console.error(`❌ Error en cita ${cita.ID}:`, error);
+                errores.push({ citaId: cita.ID, error: error.message });
+            }
+        }
+
+        console.log("📩 Proceso de envío finalizado.");
+        estadoCron = {
+            ultimaEjecucion: new Date(),
+            totalEnviados: recordatoriosEnviados.length,
+            totalErrores: errores.length,
+        };
+
+        if (!req.fake) return res.json({ message: "Envío de recordatorios completado.", estadoCron });
+    } catch (error) {
+        console.error("❌ Error en el proceso de recordatorios:", error);
+        if (!req.fake) return res.status(500).json({ message: "Error al enviar recordatorios.", error: error.message });
     }
-
-    // Enviar correos de recordatorio
-    for (const cita of citas) {
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: cita.email,
-        subject: "Recordatorio de Cita Médica",
-        text: `Hola ${cita.nombre}, este es un recordatorio de tu cita médica programada para el día ${cita.fecha} a las ${cita.hora}.`,
-      };
-
-      await transporter.sendMail(mailOptions);
-
-      // Opcional: Actualizar el estado de la cita
-      await Cita.update({ estado: "recordatorio enviado" }, { where: { id: cita.id } });
-    }
-
-    res.json({ message: "Recordatorios enviados correctamente" });
-  } catch (error) {
-    console.error("Error al enviar recordatorios:", error);
-    res.status(500).json({ message: "Error al enviar recordatorios" });
-  }
 };
+
+// Ruta para obtener el estado del cron
+exports.obtenerEstadoCron = (req, res) => {
+    const ahora = moment().tz("America/Bogota");
+    let proximaEjecucion = ahora.clone().startOf("day").add(8, "hours");
+
+    if (ahora.isAfter(proximaEjecucion)) {
+        proximaEjecucion.add(1, "day");
+    }
+
+    const tiempoRestante = moment.duration(proximaEjecucion.diff(ahora));
+
+    res.json({
+        ultimaEjecucion: estadoCron.ultimaEjecucion ? estadoCron.ultimaEjecucion.toISOString() : "Aún no ejecutado",
+        proximaEjecucion: proximaEjecucion.toISOString(),
+        tiempoRestante: `${tiempoRestante.hours()}h ${tiempoRestante.minutes()}m ${tiempoRestante.seconds()}s`,
+        totalEnviados: estadoCron.totalEnviados,
+        totalErrores: estadoCron.totalErrores,
+    });
+};
+
+// Programar el cron job (ejecutar todos los días a las 8:00 AM)
+cron.schedule(
+    "0 8 * * *",
+    async () => {
+        console.log("⏳ Ejecutando el envío automático de correos...");
+        await exports.enviarRecordatoriosDiarios({ body: {} }, { json: () => {} });
+    },
+    {
+        timezone: "America/Bogota",
+    }
+);
+
+// Función para validar email
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+// Generar HTML del correo
+function generarHtmlRecordatorio(nombre, fecha, hora) {
+    return `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+            <h2>📅 Recordatorio de Cita Médica</h2>
+            <p>Hola ${nombre},</p>
+            <p>Te recordamos que tienes una cita médica programada:</p>
+            <ul>
+                <li><strong>Fecha:</strong> ${moment(fecha).format("dddd, D [de] MMMM [de] YYYY")}</li>
+                <li><strong>Hora:</strong> ${hora}</li>
+            </ul>
+            <p>Por favor, llega 15 minutos antes de tu cita.</p>
+            <p>Si necesitas reprogramarla, contáctanos lo antes posible.</p>
+        </div>
+    `;
+}

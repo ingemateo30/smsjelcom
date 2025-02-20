@@ -66,7 +66,6 @@ const procesarExcel = async (req, res) => {
                 }
             }
 
-            // Convertir HORA_CITA al formato correcto (HH:MM:SS)
             if (HORA_CITA) {
                 if (typeof HORA_CITA === "number") {
                     let totalSeconds = Math.round(HORA_CITA * 86400);
@@ -82,10 +81,21 @@ const procesarExcel = async (req, res) => {
             }
 
             try {
-                // Insertar en la BD
+                // Insertar en la BD incluyendo email (NULL) y estado ('pendiente')
                 await db.query(
-                    `INSERT INTO CITAS (ATENCION, FECHA_CITA, HORA_CITA, SERVICIO, PROFESIONAL, 
-                    TIPO_IDE_PACIENTE, NUMERO_IDE, NOMBRE, TELEFONO_FIJO) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    `INSERT INTO CITAS (
+                        ATENCION, 
+                        FECHA_CITA, 
+                        HORA_CITA, 
+                        SERVICIO, 
+                        PROFESIONAL, 
+                        TIPO_IDE_PACIENTE, 
+                        NUMERO_IDE, 
+                        NOMBRE, 
+                        TELEFONO_FIJO,
+                        EMAIL,
+                        ESTADO
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 'pendiente')`,
                     [ATENCION, FECHA_CITA, HORA_CITA, SERVICIO, PROFESIONAL, TIPO_IDE_PACIENTE, NUMERO_IDE, NOMBRE, TELEFONO_FIJO]
                 );
             } catch (dbError) {
@@ -102,4 +112,3 @@ const procesarExcel = async (req, res) => {
 };
 
 module.exports = { upload, procesarExcel };
-
