@@ -1,9 +1,8 @@
-const API_URL = "http://localhost:3000/api/correo"; // Base de la API
+const API_URL = "http://localhost:3000/api/correo";
 
-// 📩 Función para enviar recordatorios por correo
 export const sendReminderEmails = async () => {
     try {
-        const token = localStorage.getItem("token"); 
+        const token = localStorage.getItem("token");
         if (!token) throw new Error("No hay token disponible.");
 
         const response = await fetch(`${API_URL}/enviar-recordatorios`, {
@@ -16,22 +15,27 @@ export const sendReminderEmails = async () => {
 
         if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
 
-        const text = await response.text();
-        console.log("📩 Respuesta en texto:", text);
+        const contentType = response.headers.get("content-type");
 
-        const data = JSON.parse(text);
+        let data;
+        if (contentType && contentType.includes("application/json")) {
+            data = await response.json();
+        } else {
+            const text = await response.text();
+            data = { message: text };
+        }
+        console.log("📩 Respuesta del servidor:", data);
         return { success: true, ...data };
-
     } catch (error) {
-        console.error("Error enviando recordatorios:", error);
+        console.error("❌ Error enviando recordatorios:", error);
         return { success: false, message: "Error en el servidor", error: error.message };
     }
 };
 
-// ⏳ Función para obtener el estado del cron
+
 export const getCronStatus = async () => {
     try {
-        const token = localStorage.getItem("token"); // Obtener token almacenado
+        const token = localStorage.getItem("token");
         if (!token) {
             throw new Error("No hay token disponible.");
         }
@@ -57,4 +61,3 @@ export const getCronStatus = async () => {
 
 
 
-  

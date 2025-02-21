@@ -97,15 +97,20 @@ exports.obtenerEstadoCron = (req, res) => {
     }
 
     const tiempoRestante = moment.duration(proximaEjecucion.diff(ahora));
+    const tiempoRestanteEnSegundos = tiempoRestante.asSeconds(); // Convierte a segundos
+
+    console.log("Tiempo restante en segundos (backend):", tiempoRestanteEnSegundos); // DEBUG
 
     res.json({
         ultimaEjecucion: estadoCron.ultimaEjecucion ? estadoCron.ultimaEjecucion.toISOString() : "Aún no ejecutado",
         proximaEjecucion: proximaEjecucion.toISOString(),
         tiempoRestante: `${tiempoRestante.hours()}h ${tiempoRestante.minutes()}m ${tiempoRestante.seconds()}s`,
+        tiempoRestanteEnSegundos: Math.max(0, tiempoRestanteEnSegundos), // Evita valores negativos
         totalEnviados: estadoCron.totalEnviados,
         totalErrores: estadoCron.totalErrores,
     });
 };
+
 
 // Programar el cron job (ejecutar todos los días a las 8:00 AM)
 cron.schedule(

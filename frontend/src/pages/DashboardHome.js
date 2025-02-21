@@ -64,7 +64,7 @@ const DashboardHome = () => {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
-              Dashboard SMS
+              Dashboard
             </h2>
             <p className="text-gray-400 mt-2 text-sm">
               Monitoreo de recordatorios y respuestas

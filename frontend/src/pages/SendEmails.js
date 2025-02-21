@@ -14,8 +14,10 @@ const SendEmails = () => {
                 const status = await getCronStatus();
                 setCronStatus(status);
 
-                if (status && typeof status.timeLeftInSeconds === "number") {
-                    setTimeLeft(status.timeLeftInSeconds);
+                console.log("Tiempo restante recibido:", status.tiempoRestanteEnSegundos);
+
+                if (status && typeof status.tiempoRestanteEnSegundos === "number" && status.tiempoRestanteEnSegundos > 0) {
+                    setTimeLeft(status.tiempoRestanteEnSegundos);
                 }
             } catch (error) {
                 console.error("Error obteniendo el estado del cron:", error);
@@ -32,16 +34,55 @@ const SendEmails = () => {
         return () => clearInterval(interval);
     }, []);
 
+
     const handleSendEmails = async () => {
         setLoading(true);
         try {
             const result = await sendReminderEmails();
-            setResponse({ success: true, message: "Correos enviados con éxito", data: result });
+
+            if (result.message) {
+                setResponse({
+                    success: true,
+                    message: result.message,
+                    data: result
+                });
+            } else {
+                setResponse({
+                    success: true,
+                    message: "Correos enviados con éxito",
+                    data: result
+                });
+            }
         } catch (error) {
-            setResponse({ success: false, message: "Error al enviar correos" });
+            console.error("Error en la solicitud:", error);
+
+            if (error.response && error.response.data && error.response.data.message) {
+                setResponse({ success: false, message: error.response.data.message });
+            } else {
+                setResponse({ success: false, message: "Error al enviar correos" });
+            }
         } finally {
             setLoading(false);
         }
+    };
+
+    useEffect(() => {
+        if (response) {
+            const timer = setTimeout(() => {
+                setResponse(null);
+            }, 5000);
+
+            return () => clearTimeout(timer);
+        }
+    }, [response]);
+
+
+
+    const formatTime = (seconds) => {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${hours}h ${minutes}m ${secs}s`;
     };
 
     return (
@@ -75,11 +116,10 @@ const SendEmails = () => {
                 </button>
 
                 {response && (
-                    <div className={`p-4 mt-4 rounded-lg flex items-center gap-3 border ${
-                        response.success
-                            ? "bg-green-500/10 border-green-500/20 text-green-400"
-                            : "bg-red-500/10 border-red-500/20 text-red-400"
-                    }`}>
+                    <div className={`p-4 mt-4 rounded-lg flex items-center gap-3 border ${response.success
+                        ? "bg-green-500/10 border-green-500/20 text-green-400"
+                        : "bg-red-500/10 border-red-500/20 text-red-400"
+                        }`}>
                         {response.success ? (
                             <CheckCircle className="w-5 h-5 flex-shrink-0" />
                         ) : (
@@ -88,20 +128,36 @@ const SendEmails = () => {
                         <span className="text-sm">{response.message}</span>
                     </div>
                 )}
-
                 {cronStatus && (
-                    <div className="mt-4 p-4 rounded-lg bg-gray-800 text-white flex items-center gap-2">
-                        <Clock className="w-5 h-5 text-orange-400" />
-                        <span className="text-sm">
-                            Estado del cron: <strong>{cronStatus.message}</strong>
-                        </span>
+                    <div className="mt-4 p-4 rounded-lg bg-gray-800 text-white">
+                        <h2 className="text-lg font-bold mb-2">📊 Estado del envio automatico</h2>
+                        <ul className="text-sm space-y-1">
+                            <li className="flex items-center gap-2">
+                                <Clock className="w-4 h-4 text-orange-400" />
+                                <strong>Última Ejecución:</strong>
+                                {cronStatus.ultimaEjecucion === "Aún no ejecutado"
+                                    ? "Aún no ejecutado"
+                                    : new Date(cronStatus.ultimaEjecucion).toLocaleDateString()}
+                            </li>
+
+                            <li className="flex items-center gap-2">
+                                <Clock className="w-4 h-4 text-orange-400" />
+                                <strong>Total Enviados:</strong> {cronStatus.totalEnviados}
+                            </li>
+                            <li className="flex items-center gap-2">
+                                <Clock className="w-4 h-4 text-orange-400" />
+                                <strong>Total Errores:</strong> {cronStatus.totalErrores}
+                            </li>
+                        </ul>
                         {timeLeft !== null && (
-                            <span className="text-sm ml-2">
-                                ⏳ Próxima ejecución en: <strong>{timeLeft} segundos</strong>
-                            </span>
+                            <p className="mt-2 text-sm">
+                                ⏳ <strong>Próxima ejecución en:</strong> {formatTime(timeLeft)}
+                            </p>
                         )}
                     </div>
                 )}
+
+
             </div>
         </div>
     );
