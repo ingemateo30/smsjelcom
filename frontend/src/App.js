@@ -9,7 +9,8 @@ import UploadExcel from "./pages/UploadExcel";
 import DashboardHome from "./pages/DashboardHome";
 import RegisterUser from "./pages/RegisterUser";
 import LandingPage from "./pages/LandingPage";
-import SendEmails from "./pages/SendEmails"; // ✅ Importamos la nueva página
+import SendEmails from "./pages/SendEmails";
+import SendManualEmail from "./pages/SendManualEmail";
 
 const App = () => {
   return (
@@ -26,7 +27,8 @@ const App = () => {
           <Route path="/dashboard" element={<Dashboard />}>
             <Route index element={<DashboardHome />} />
             <Route path="subir-excel" element={<UploadExcel />} />
-            <Route path="enviar-correos" element={<SendEmails />} /> {/* ✅ Nueva ruta */}
+            <Route path="enviar-correos" element={<SendEmails />} />
+            <Route path="enviar-correo" element={<SendManualEmail />} />
             <Route element={<PrivateRoute requiredRole="admin" />}>
               <Route path="usuarios" element={<RegisterUser />} />
             </Route>

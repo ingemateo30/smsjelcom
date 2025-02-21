@@ -13,9 +13,7 @@ const SendEmails = () => {
             try {
                 const status = await getCronStatus();
                 setCronStatus(status);
-
                 console.log("Tiempo restante recibido:", status.tiempoRestanteEnSegundos);
-
                 if (status && typeof status.tiempoRestanteEnSegundos === "number" && status.tiempoRestanteEnSegundos > 0) {
                     setTimeLeft(status.tiempoRestanteEnSegundos);
                 }
@@ -24,9 +22,7 @@ const SendEmails = () => {
                 setCronStatus(null);
             }
         };
-
         fetchCronStatus();
-
         const interval = setInterval(() => {
             setTimeLeft(prev => (prev && prev > 0 ? prev - 1 : 0));
         }, 1000);
@@ -96,7 +92,6 @@ const SendEmails = () => {
                         Envía recordatorios automáticos por correo a los clientes.
                     </p>
                 </div>
-
                 <button
                     onClick={handleSendEmails}
                     disabled={loading}
@@ -114,7 +109,6 @@ const SendEmails = () => {
                         </>
                     )}
                 </button>
-
                 {response && (
                     <div className={`p-4 mt-4 rounded-lg flex items-center gap-3 border ${response.success
                         ? "bg-green-500/10 border-green-500/20 text-green-400"
@@ -156,7 +150,6 @@ const SendEmails = () => {
                         )}
                     </div>
                 )}
-
 
             </div>
         </div>

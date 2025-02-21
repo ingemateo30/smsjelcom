@@ -6,7 +6,7 @@ const moment = require("moment-timezone");
 
 dotenv.config();
 
-const CRON_HORA_EJECUCION = "08:00"; // Hora de ejecución en formato HH:mm
+const CRON_HORA_EJECUCION = "08:00";
 
 let estadoCron = {
     ultimaEjecucion: null,
@@ -14,7 +14,6 @@ let estadoCron = {
     totalErrores: 0,
 };
 
-// Configuración del transportador de correo
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -146,3 +145,42 @@ function generarHtmlRecordatorio(nombre, fecha, hora) {
         </div>
     `;
 }
+
+exports.sendManualEmail = async (req, res) => {
+    console.log('Datos recibidos:', req.body);
+    const { nombre, correo, mensaje } = req.body;
+
+    if (!nombre || !correo || !mensaje) {
+        return res.status(400).json({ success: false, message: "Nombre, correo y contenido son requeridos" });
+    }
+
+    try {
+        const transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: correo,
+            subject: "Recordatorio cita medica",
+            html: `
+                <h2>Hola, ${nombre}</h2>
+                <p>${mensaje}</p>
+                <br>
+                <strong>Gracias por confiar en nosotros.</strong>
+            `
+        };
+
+        await transporter.sendMail(mailOptions);
+        res.json({ success: true, message: `Correo enviado a ${correo}` });
+
+    } catch (error) {
+        console.error("Error al enviar el correo:", error);  // Esto imprimirá más detalles en la consola
+        res.status(500).json({ message: "Error interno al procesar la solicitud." });
+    }
+};
+

@@ -10,6 +10,7 @@ import {
   FaChevronLeft,
   FaUpload,
   FaPaperPlane,
+  FaEnvelope,
 } from "react-icons/fa";
 import logo from "../assets/logos-jelcom.png";
 import { sendReminderEmails } from "../services/emailService";
@@ -73,7 +74,8 @@ const Dashboard = () => {
           )}
           <SidebarButton icon={<FaCog />} text="Configuración" collapsed={isCollapsed} onClick={() => navigate("/dashboard/configuracion")} />
           <SidebarButton icon={<FaUpload />} text="Subir Excel" collapsed={isCollapsed} onClick={() => navigate("/dashboard/subir-excel")} />
-          <SidebarButton icon={<FaPaperPlane />} text="Enviar Correos" collapsed={isCollapsed} onClick={() => navigate("/dashboard/enviar-correos")} /> {/* ✅ Nuevo botón */}
+          <SidebarButton icon={<FaPaperPlane />} text="Correos automaticos" collapsed={isCollapsed} onClick={() => navigate("/dashboard/enviar-correos")} /> {/* ✅ Nuevo botón */}
+          <SidebarButton icon={<FaEnvelope />} text="Enviar Correo manual" collapsed={isCollapsed} onClick={() => navigate("/dashboard/enviar-correo")} />
         </nav>
       </aside>
 
