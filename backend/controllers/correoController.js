@@ -31,7 +31,7 @@ exports.enviarRecordatoriosDiarios = async (req, res) => {
         console.log("📅 Buscando citas para la fecha:", fechaManana);
 
         const [citas] = await db.query(
-            `SELECT ID, NOMBRE, EMAIL, FECHA_CITA as fecha, HORA_CITA as hora 
+            `SELECT ID, NOMBRE, EMAIL,PROFESIONAL,SERVICIO, FECHA_CITA as fecha, HORA_CITA as hora 
             FROM citas 
             WHERE FECHA_CITA = ? 
             AND estado != 'recordatorio enviado' 
@@ -61,7 +61,7 @@ exports.enviarRecordatoriosDiarios = async (req, res) => {
                     from: process.env.EMAIL_USER,
                     to: cita.EMAIL,
                     subject: "📅 Recordatorio de Cita Médica",
-                    html: generarHtmlRecordatorio(cita.NOMBRE, cita.fecha, cita.hora),
+                    html: generarHtmlRecordatorio(cita.NOMBRE, cita.fecha, cita.hora, cita.SERVICIO),
                 });
 
                 await db.query("UPDATE citas SET estado = 'recordatorio enviado' WHERE ID = ?", [cita.ID]);
@@ -130,12 +130,12 @@ function isValidEmail(email) {
 }
 
 // Generar HTML del correo
-function generarHtmlRecordatorio(nombre, fecha, hora) {
+function generarHtmlRecordatorio(nombre, fecha, hora, profesional) {
     return `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
             <h2>📅 Recordatorio de Cita Médica</h2>
             <p>Hola ${nombre},</p>
-            <p>Te recordamos que tienes una cita médica programada:</p>
+            <p>Te recordamos que tienes una cita ${profesional} programada:</p>
             <ul>
                 <li><strong>Fecha:</strong> ${moment(fecha).format("dddd, D [de] MMMM [de] YYYY")}</li>
                 <li><strong>Hora:</strong> ${hora}</li>

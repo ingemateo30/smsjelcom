@@ -45,7 +45,7 @@ const EnviarCorreo = () => {
                 setCorreo("");
                 setMensaje("");
                 setResponse(null);
-            }, 3000);
+            }, 9000);
 
         } catch (error) {
             console.error("Error response:", error.response);
