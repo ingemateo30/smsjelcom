@@ -101,8 +101,6 @@ const EnviarCorreo = () => {
                             required
                         />
                     </div>
-
-                    {/* Botón de Enviar */}
                     <button
                         type="submit"
                         className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -111,8 +109,6 @@ const EnviarCorreo = () => {
                         {loading ? "Enviando..." : <><FaPaperPlane /> Enviar Correo</>}
                     </button>
                 </form>
-
-                {/* Mensaje de Respuesta */}
                 {response && (
                     <div className={`p-4 mt-4 rounded-lg text-sm ${response.success ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400"} border ${response.success ? "border-green-500/20" : "border-red-500/20"}`}>
                         {response.message}

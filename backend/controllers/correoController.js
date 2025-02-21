@@ -162,7 +162,6 @@ exports.sendManualEmail = async (req, res) => {
                 pass: process.env.EMAIL_PASS
             }
         });
-
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: correo,
@@ -174,12 +173,10 @@ exports.sendManualEmail = async (req, res) => {
                 <strong>Gracias por confiar en nosotros.</strong>
             `
         };
-
         await transporter.sendMail(mailOptions);
         res.json({ success: true, message: `Correo enviado a ${correo}` });
-
     } catch (error) {
-        console.error("Error al enviar el correo:", error);  // Esto imprimirá más detalles en la consola
+        console.error("Error al enviar el correo:", error);
         res.status(500).json({ message: "Error interno al procesar la solicitud." });
     }
 };

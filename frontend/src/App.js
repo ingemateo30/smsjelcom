@@ -16,13 +16,13 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LandingPage />} /> {/* La landing es la principal */}
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* Rutas protegidas para usuarios autenticados */}
+
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />}>
             <Route index element={<DashboardHome />} />
