@@ -11,20 +11,16 @@ const storage = multer.diskStorage({
         cb(null, "citas_" + Date.now() + path.extname(file.originalname));
     }
 });
-
 const upload = multer({ storage });
-
 const procesarExcel = async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ message: "No se ha subido ningún archivo" });
         }
-
         const workbook = xlsx.readFile(req.file.path);
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName];
         const data = xlsx.utils.sheet_to_json(sheet);
-
         for (const row of data) {
             let {
                 ATENCION,
@@ -42,7 +38,6 @@ const procesarExcel = async (req, res) => {
                 console.warn(`Fila con datos incompletos:`, row);
                 continue; 
             }
- 
             NUMERO_IDE = NUMERO_IDE.toString().trim();
             TELEFONO_FIJO = TELEFONO_FIJO ? TELEFONO_FIJO.toString().trim() : null;
 

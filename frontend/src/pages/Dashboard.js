@@ -11,6 +11,7 @@ import {
   FaUpload,
   FaPaperPlane,
   FaEnvelope,
+  FaSms,
 } from "react-icons/fa";
 import logo from "../assets/logos-jelcom.png";
 import { sendReminderEmails } from "../services/emailService";
@@ -76,6 +77,7 @@ const Dashboard = () => {
           <SidebarButton icon={<FaUpload />} text="Subir Excel" collapsed={isCollapsed} onClick={() => navigate("/dashboard/subir-excel")} />
           <SidebarButton icon={<FaPaperPlane />} text="Correos automaticos" collapsed={isCollapsed} onClick={() => navigate("/dashboard/enviar-correos")} /> {/* ✅ Nuevo botón */}
           <SidebarButton icon={<FaEnvelope />} text="Enviar Correo manual" collapsed={isCollapsed} onClick={() => navigate("/dashboard/enviar-correo")} />
+          <SidebarButton icon={<FaSms/>} text="sms automaticos" collapsed={isCollapsed} onClick={() => navigate("/dashboard/enviar-sms")} />
         </nav>
       </aside>
 

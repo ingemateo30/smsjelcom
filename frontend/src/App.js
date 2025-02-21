@@ -11,6 +11,7 @@ import RegisterUser from "./pages/RegisterUser";
 import LandingPage from "./pages/LandingPage";
 import SendEmails from "./pages/SendEmails";
 import SendManualEmail from "./pages/SendManualEmail";
+import SendSMS from "./pages/SendSms"; // ✅ Nueva página
 
 const App = () => {
   return (
@@ -22,13 +23,13 @@ const App = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
-
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />}>
             <Route index element={<DashboardHome />} />
             <Route path="subir-excel" element={<UploadExcel />} />
             <Route path="enviar-correos" element={<SendEmails />} />
             <Route path="enviar-correo" element={<SendManualEmail />} />
+            <Route path="enviar-sms" element={<SendSMS />} /> {/* ✅ Nueva ruta */}
             <Route element={<PrivateRoute requiredRole="admin" />}>
               <Route path="usuarios" element={<RegisterUser />} />
             </Route>
