@@ -141,6 +141,7 @@ function generarHtmlRecordatorio(nombre, fecha, hora, profesional) {
             </ul>
             <p>Por favor, llega 15 minutos antes de tu cita.</p>
             <p>Si necesitas reprogramarla, contáctanos al siguiente numero # .</p>
+            
         </div>
     `;
 }
