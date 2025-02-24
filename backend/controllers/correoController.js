@@ -60,7 +60,7 @@ exports.enviarRecordatoriosDiarios = async (req, res) => {
                 await transporter.sendMail({
                     from: process.env.EMAIL_USER,
                     to: cita.EMAIL,
-                    subject: "📅 Recordatorio de Cita Médica",
+                    subject: "Recordatorio Cita Médica Hospital Regional de Sangil",
                     html: generarHtmlRecordatorio(cita.NOMBRE, cita.fecha, cita.hora, cita.SERVICIO),
                 });
 
@@ -140,7 +140,7 @@ function generarHtmlRecordatorio(nombre, fecha, hora, profesional) {
                 <li><strong>Hora:</strong> ${hora}</li>
             </ul>
             <p>Por favor, llega 15 minutos antes de tu cita.</p>
-            <p>Si necesitas reprogramarla, contáctanos lo antes posible.</p>
+            <p>Si necesitas reprogramarla, contáctanos al siguiente numero # .</p>
         </div>
     `;
 }
