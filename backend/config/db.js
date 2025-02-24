@@ -6,19 +6,19 @@ const db = mysql.createPool({
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
   waitForConnections: true,
-  connectionLimit: 10,  // Límite de conexiones simultáneas
+  connectionLimit: 10,
   queueLimit: 0
 }).promise();
 
-// Manejo de errores para evitar caída de la app
+
 db.getConnection()
   .then(connection => {
     console.log('✅ Conectado a MySQL');
-    connection.release(); // Liberar conexión del pool
+    connection.release();
   })
   .catch(err => {
     console.error('❌ Error al conectar a MySQL:', err.message);
-    process.exit(1); // Detiene la aplicación si hay un error grave
+    process.exit(1);
   });
 
 module.exports = db;

@@ -1,8 +1,7 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/api/correo"; // Ajusta la URL según tu backend
+const API_URL = "http://localhost:3000/api/correo"; 
 
-// Enviar recordatorios de SMS manualmente
 export const sendReminderSMS = async () => {
     try {
         const response = await axios.post(`${API_URL}/enviar-recordatorio-sms`);

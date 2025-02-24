@@ -13,7 +13,7 @@ class User {
     async guardar() {
         try {
             const hashedPassword = await bcrypt.hash(this.password, 10);
-            const [result] = await db.query(  // ❌ QUITAR .promise()
+            const [result] = await db.query(  
                 'INSERT INTO usuarios (nombre, email, password, rol, estado) VALUES (?, ?, ?, ?, ?)',
                 [this.nombre, this.email, hashedPassword, this.rol, this.estado]
             );
@@ -25,7 +25,7 @@ class User {
 
     static async buscarPorEmail(email) {
         try {
-            const [result] = await db.query(  // ❌ QUITAR .promise()
+            const [result] = await db.query( 
                 'SELECT id, nombre, email, password, rol, estado FROM usuarios WHERE email = ?',
                 [email]
             );
@@ -37,7 +37,7 @@ class User {
 
     static async actualizarEstado(id, nuevoEstado) {
         try {
-            const [result] = await db.query(  // ❌ QUITAR .promise()
+            const [result] = await db.query( 
                 'UPDATE usuarios SET estado = ? WHERE id = ?',
                 [nuevoEstado, id]
             );
@@ -49,7 +49,7 @@ class User {
 
     static async listarUsuarios() {
         try {
-            const [result] = await db.query(  // ❌ QUITAR .promise()
+            const [result] = await db.query(  
                 'SELECT id, nombre, email, rol, estado FROM usuarios'
             );
             return result;

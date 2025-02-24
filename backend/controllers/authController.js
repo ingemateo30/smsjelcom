@@ -92,7 +92,6 @@ exports.solicitarRecuperacion = async (req, res) => {
             [resetToken, tokenExpiration, usuario.id]
         );
 
-        // Enviar correo seguro
         const resetLink = `http://localhost:3001/reset-password?token=${resetToken}`;
         await transporter.sendMail({
             from: 'no-reply@jelcom.com',
@@ -110,7 +109,7 @@ exports.solicitarRecuperacion = async (req, res) => {
     }
 };
 
-// 🔹 Reset de contraseña con validaciones extra
+
 exports.resetearPassword = async (req, res) => {
     const { token, newPassword } = req.body;
 
@@ -138,7 +137,7 @@ exports.resetearPassword = async (req, res) => {
     }
 };
 
-// 🔹 Listar usuarios de forma segura
+
 exports.listarUsuarios = async (req, res) => {
     try {
         const usuarios = await User.listarUsuarios();
@@ -149,7 +148,7 @@ exports.listarUsuarios = async (req, res) => {
     }
 };
 
-// 🔹 Actualizar estado con seguridad extra
+
 exports.actualizarEstado = async (req, res) => {
     try {
         const { id } = req.params;

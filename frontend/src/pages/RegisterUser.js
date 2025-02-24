@@ -69,7 +69,7 @@ const RegisterUser = () => {
       setError(error.message);
     } finally {
       setLoading(false);
-      setTimeout(() => setSuccess(""), 3000); // Ocultar mensaje de éxito después de 3s
+      setTimeout(() => setSuccess(""), 3000);
     }
   };
 
@@ -92,8 +92,6 @@ const RegisterUser = () => {
       });
 
       if (!response.ok) throw new Error("Error al actualizar el estado del usuario");
-
-      // Actualizar el estado del usuario localmente
       setUsers((prevUsers) =>
         prevUsers.map((user) => (user.id === id ? { ...user, estado: nuevoEstado } : user))
       );

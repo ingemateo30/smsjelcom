@@ -76,7 +76,6 @@ const procesarExcel = async (req, res) => {
             }
 
             try {
-                // Insertar en la BD incluyendo email (NULL) y estado ('pendiente')
                 await db.query(
                     `INSERT INTO CITAS (
                         ATENCION, 

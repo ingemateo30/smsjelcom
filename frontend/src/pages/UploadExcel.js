@@ -9,7 +9,7 @@ const UploadExcel = () => {
 
     const handleFileChange = (event) => {
         setFile(event.target.files[0]);
-        setMessage(""); // Reset message on new file selection
+        setMessage("");
     };
 
     const handleUpload = async () => {
@@ -21,7 +21,7 @@ const UploadExcel = () => {
         const formData = new FormData();
         formData.append("file", file);
     
-        const token = localStorage.getItem("token"); // Obtener el token del localStorage
+        const token = localStorage.getItem("token");
     
         if (!token) {
             setMessage("No tienes un token de autenticación. Inicia sesión nuevamente.");
@@ -36,7 +36,7 @@ const UploadExcel = () => {
                 {
                     headers: {
                         "Content-Type": "multipart/form-data",
-                        "Authorization": `Bearer ${token}`, // Agregar el token aquí
+                        "Authorization": `Bearer ${token}`,
                     },
                 }
             );

@@ -35,7 +35,7 @@ const ResetPassword = () => {
             setMessage("Contraseña restablecida con éxito.");
             setNewPassword("");
 
-            setTimeout(() => setMessage(""), 3000); // Ocultar mensaje después de 3s
+            setTimeout(() => setMessage(""), 3000);
         } catch (error) {
             setError(error.message);
         } finally {

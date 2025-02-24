@@ -56,8 +56,6 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
-
-      {/* Sección de Contacto */}
       <section className="text-center py-16 px-4">
         <h3 className="text-3xl font-bold text-orange-500">Contáctanos</h3>
         <p className="text-gray-300 mt-4">¿Tienes preguntas? Escríbenos y te ayudaremos.</p>
@@ -77,8 +75,6 @@ const LandingPage = () => {
           </a>
         </div>
       </section>
-
-      {/* Footer */}
       <footer className="bg-gray-800 text-center py-4 text-gray-400">
         © {new Date().getFullYear()} Jelcom. Todos los derechos reservados.
       </footer>

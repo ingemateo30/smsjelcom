@@ -10,7 +10,7 @@ const crearCita = async (nombre, fecha) => {
   }
 };
 
-// Obtener todas las citas
+
 const obtenerCitas = async () => {
   try {
     const [rows] = await db.query('SELECT * FROM citas');
@@ -21,7 +21,7 @@ const obtenerCitas = async () => {
   }
 };
 
-// Obtener una cita por ID
+
 const obtenerCitaPorId = async (id) => {
   try {
     const [rows] = await db.query('SELECT * FROM citas WHERE id = ?', [id]);
@@ -32,7 +32,7 @@ const obtenerCitaPorId = async (id) => {
   }
 };
 
-// Actualizar una cita
+
 const actualizarCita = async (id, nombre, fecha) => {
   try {
     const [result] = await db.query('UPDATE citas SET nombre = ?, fecha = ? WHERE id = ?', [nombre, fecha, id]);
@@ -43,7 +43,7 @@ const actualizarCita = async (id, nombre, fecha) => {
   }
 };
 
-// Eliminar una cita
+
 const eliminarCita = async (id) => {
   try {
     const [result] = await db.query('DELETE FROM citas WHERE id = ?', [id]);
@@ -54,7 +54,7 @@ const eliminarCita = async (id) => {
   }
 };
 
-// Exportar funciones
+
 module.exports = {
   crearCita,
   obtenerCitas,

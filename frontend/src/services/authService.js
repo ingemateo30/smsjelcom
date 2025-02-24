@@ -32,8 +32,6 @@ export const getToken = () => {
 export const getUserRole = () => {
   return localStorage.getItem("rol") || null;
 };
-
-/** ✅ SOLICITAR RECUPERACIÓN DE CONTRASEÑA */
 export const solicitarRecuperacion = async (email) => {
   try {
     const response = await axios.post(`${API_URL}/forgot-password`, { email });
@@ -42,8 +40,6 @@ export const solicitarRecuperacion = async (email) => {
     return { error: error.response?.data?.message || "Error al solicitar recuperación" };
   }
 };
-
-/** ✅ RESETEAR CONTRASEÑA */
 export const resetearPassword = async (token, newPassword) => {
   try {
     const response = await axios.post(`${API_URL}/reset-password`, { token, newPassword });

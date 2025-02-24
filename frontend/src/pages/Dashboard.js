@@ -116,8 +116,6 @@ const Dashboard = () => {
     </div>
   );
 };
-
-// Componente reutilizable para botones del Sidebar
 const SidebarButton = ({ icon, text, collapsed, onClick }) => (
   <button
     onClick={onClick}

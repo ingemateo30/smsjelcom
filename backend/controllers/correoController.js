@@ -22,7 +22,7 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-// Función para enviar recordatorios manual y automático
+
 exports.enviarRecordatoriosDiarios = async (req, res) => {
     try {
         console.log("📩 Iniciando envío de recordatorios...");
@@ -86,7 +86,7 @@ exports.enviarRecordatoriosDiarios = async (req, res) => {
     }
 };
 
-// Ruta para obtener el estado del cron
+
 exports.obtenerEstadoCron = (req, res) => {
     const ahora = moment().tz("America/Bogota");
     let proximaEjecucion = ahora.clone().startOf("day").add(8, "hours");
@@ -111,7 +111,6 @@ exports.obtenerEstadoCron = (req, res) => {
 };
 
 
-// Programar el cron job (ejecutar todos los días a las 8:00 AM)
 cron.schedule(
     "0 8 * * *",
     async () => {
@@ -123,13 +122,13 @@ cron.schedule(
     }
 );
 
-// Función para validar email
+
 function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
 }
 
-// Generar HTML del correo
+
 function generarHtmlRecordatorio(nombre, fecha, hora, profesional) {
     return `
         <div style="font-family: Arial, sans-serif; padding: 20px;">

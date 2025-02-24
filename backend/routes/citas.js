@@ -3,7 +3,7 @@ const router = express.Router();
 const { upload, procesarExcel } = require("../controllers/citasController");
 const { verificarRol } = require("../middlewares/auth");
 
-// Middleware para validar tipo de archivo
+
 const validarArchivo = (req, res, next) => {
     if (!req.file) {
         return res.status(400).json({ message: "No se ha subido ningún archivo" });
@@ -17,7 +17,6 @@ const validarArchivo = (req, res, next) => {
     next();
 };
 
-// Ruta protegida para subir y procesar el archivo Excel
 router.post("/subir-excel", verificarRol(["admin", "usuario"]), upload.single("file"), validarArchivo, procesarExcel);
 
 module.exports = router;

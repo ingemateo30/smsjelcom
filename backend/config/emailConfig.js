@@ -1,19 +1,19 @@
 const nodemailer = require('nodemailer');
-require('dotenv').config(); // Carga variables de entorno
+require('dotenv').config(); 
 
 const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS // Nunca hardcodear credenciales
+        pass: process.env.EMAIL_PASS
     },
-    secure: true, // Usa SSL/TLS para mayor seguridad
+    secure: true,
     tls: {
-        rejectUnauthorized: false // Evita problemas con certificados en servidores nuevos
+        rejectUnauthorized: false
     }
 });
 
-// Verificar conexión con el servidor de correos
+
 transporter.verify()
     .then(() => console.log('✅ Servidor de correo listo'))
     .catch(err => console.error('❌ Error en el servidor de correo:', err.message));
