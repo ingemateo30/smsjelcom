@@ -20,7 +20,7 @@ SELECT *
 FROM duplicados
 WHERE fila_num > 1;
 
-//duplicado de tabla citas
+/*duplicado de tabla citas*/
 CREATE TABLE IF NOT EXISTS citas_historico LIKE citas;
 
 
@@ -29,14 +29,11 @@ DELIMITER $$ */
 
 CREATE EVENT IF NOT EXISTS mover_citas_a_historico
 ON SCHEDULE EVERY 1 DAY 
-STARTS TIMESTAMP(CURDATE() + INTERVAL 1 DAY)  -- Comienza al día siguiente a medianoche
+STARTS TIMESTAMP(CURDATE() + INTERVAL 1 DAY)
 DO 
 BEGIN
-    -- Insertar en la tabla histórica las citas del día anterior
     INSERT INTO citas_historico
     SELECT * FROM citas WHERE FECHA_CITA = CURDATE() - INTERVAL 1 DAY;
-    
-    -- Eliminar de la tabla principal las citas del día anterior
     DELETE FROM citas WHERE FECHA_CITA = CURDATE() - INTERVAL 1 DAY;
 END $$
 
@@ -66,14 +63,14 @@ WHERE DATE(fecha_cita) = CURDATE();
 
 /*Confirmaciones y Cancelaciones (Métrica)*/
 SELECT 
-  SUM(CASE WHEN estado = 'Confirmado' THEN 1 ELSE 0 END) AS confirmaciones,
-  SUM(CASE WHEN estado = 'Cancelado' THEN 1 ELSE 0 END) AS cancelaciones
+  SUM(CASE WHEN estado = 'recordatorio enviado' THEN 1 ELSE 0 END) AS confirmaciones,
+  SUM(CASE WHEN estado = 'pendiente' THEN 1 ELSE 0 END) AS cancelaciones
 FROM citas_historico
 WHERE DATE(fecha_cita) = CURDATE();
 
 /*Estado de Mensajes (Gráfico de Torta)*/
 SELECT 
-  SUM(CASE WHEN estado = 'Entregado' THEN 1 ELSE 0 END) AS entregados,
+  SUM(CASE WHEN estado = 'recordatorio enviado' THEN 1 ELSE 0 END) AS entregados,
   SUM(CASE WHEN estado = 'Pendiente' THEN 1 ELSE 0 END) AS pendientes
 FROM citas_historico
 WHERE DATE(fecha_envio) = CURDATE();
@@ -83,7 +80,7 @@ WHERE DATE(fecha_envio) = CURDATE();
 SELECT 
   MONTHNAME(fecha_cita) AS mes, 
   SUM(CASE WHEN estado = 'pendiente' THEN 1 ELSE 0 END) AS confirmados,
-  SUM(CASE WHEN estado = 'Cancelado' THEN 1 ELSE 0 END) AS cancelados
+  SUM(CASE WHEN estado = 'recordatorio enviado' THEN 1 ELSE 0 END) AS cancelados
 FROM citas
 WHERE YEAR(fecha_cita) = YEAR(CURDATE())
 GROUP BY MONTH(fecha_cita)
@@ -91,7 +88,7 @@ ORDER BY MONTH(fecha_cita);
 
 /*Porcentaje de Pacientes No Contactados (Gráfico de Torta)*/
 SELECT 
-  (SUM(CASE WHEN s.estado = 'Fallido' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) AS porcentaje_no_contactados
+  (SUM(CASE WHEN s.estado = 'pendiente' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) AS porcentaje_no_contactados
 FROM sms_logs s
 WHERE DATE(s.fecha_envio) = CURDATE();
 
@@ -101,9 +98,11 @@ SELECT
   DAYNAME(fecha_cita) AS dia,
   COUNT(*) AS confirmaciones
 FROM citas
-WHERE estado = 'Confirmado' AND fecha_cita >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+WHERE estado = 'recordatorio enviado' AND fecha_cita >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
 GROUP BY dia
 ORDER BY FIELD(dia, 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo');
+
+/*recordatorio enviado*/
 
 
 

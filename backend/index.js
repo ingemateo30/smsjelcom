@@ -33,6 +33,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/citas", citasRoutes);
 app.use("/api/correo", correoroutes);
 app.use("/api/sms", smsRoutes);
+const dashboardRoutes = require('./routes/dashboard');
+app.use('/api/dashboard', dashboardRoutes);
 
 
 app.use((err, req, res, next) => {

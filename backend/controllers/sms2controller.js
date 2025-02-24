@@ -1,8 +1,14 @@
 const { apiKey, sender } = require("../config/labsmobileConfig");
 const db = require("../config/db");
 const LabsMobileClient = require("labsmobile-sms/src/LabsMobileClient");
+const LabsMobileModelTextMessage = require("labsmobile-sms/src/LabsMobileModelTextMessage");
+const ParametersException = require("labsmobile-sms/src/Exception/ParametersException");
+const RestException = require("labsmobile-sms/src/Exception/RestException");
 
-const smsClient = new LabsMobileClient(apiKey);
+
+const clientLabsMobile = new LabsMobileClient({
+    apiKey: apiKey // Asegúrate de colocar tu API Key correcta
+  });
 
 
 exports.sendReminderSMS = async () => {
@@ -27,15 +33,14 @@ exports.sendReminderSMS = async () => {
             if (!telefono.startsWith('57')) {
                 telefono = `57${telefono}`; // LabsMobile no requiere el '+'
             }
-
+            console.log(typeof clientLabsMobile.sendSMS);
             if (telefono.length >= 10) { 
                 try {
-                    const response = await smsClient.sendSMS({
+                    const response = await clientLabsMobile.sendSms({
                         msisdn: telefono,
                         message: mensaje,
                         sender: sender,
                     });
-
                     console.log(`✅ Recordatorio enviado a: ${cita.TELEFONO_FIJO}`);
                     console.log(response);
 
@@ -92,3 +97,6 @@ exports.sendManualSMS = async (req, res) => {
         res.status(500).json({ message: "Error interno al procesar la solicitud." });
     }
 };
+
+
+                

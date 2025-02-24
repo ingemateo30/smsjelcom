@@ -96,15 +96,15 @@ exports.obtenerEstadoCron = (req, res) => {
     }
 
     const tiempoRestante = moment.duration(proximaEjecucion.diff(ahora));
-    const tiempoRestanteEnSegundos = tiempoRestante.asSeconds(); // Convierte a segundos
+    const tiempoRestanteEnSegundos = tiempoRestante.asSeconds();
 
-    console.log("Tiempo restante en segundos (backend):", tiempoRestanteEnSegundos); // DEBUG
+    console.log("Tiempo restante en segundos (backend):", tiempoRestanteEnSegundos);
 
     res.json({
         ultimaEjecucion: estadoCron.ultimaEjecucion ? estadoCron.ultimaEjecucion.toISOString() : "Aún no ejecutado",
         proximaEjecucion: proximaEjecucion.toISOString(),
         tiempoRestante: `${tiempoRestante.hours()}h ${tiempoRestante.minutes()}m ${tiempoRestante.seconds()}s`,
-        tiempoRestanteEnSegundos: Math.max(0, tiempoRestanteEnSegundos), // Evita valores negativos
+        tiempoRestanteEnSegundos: Math.max(0, tiempoRestanteEnSegundos),
         totalEnviados: estadoCron.totalEnviados,
         totalErrores: estadoCron.totalErrores,
     });

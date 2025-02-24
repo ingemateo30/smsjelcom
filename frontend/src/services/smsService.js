@@ -4,7 +4,7 @@ const API_URL = "http://localhost:3000/api/sms";
 
 export const sendReminderSMS = async () => {
     try {
-        const response = await axios.post(`${API_URL}/enviar-sms`);
+        const response = await axios.post(`${API_URL}/enviar`);
         return response.data;
     } catch (error) {
         console.error("Error al enviar SMS:", error);
