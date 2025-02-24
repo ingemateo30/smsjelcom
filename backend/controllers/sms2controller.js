@@ -32,7 +32,7 @@ console.log("Cliente LabsMobile:", clientLabsMobile); // Verifica si es undefine
             console.log(cita);
 
             const fechaFormateada = new Date(cita.FECHA_CITA).toISOString().split('T')[0];
-            const mensaje = `Hola ${cita.NOMBRE}, recuerda tu cita de ${cita.SERVICIO} el día ${fechaFormateada} a las ${cita.HORA_CITA}, si necesitas reprogramarla contáctanos al 3007015239.`;
+            const mensaje = `Hola ${cita.NOMBRE}, recuerda tu cita de ${cita.SERVICIO} el día ${fechaFormateada} a las ${cita.HORA_CITA}, si necesitas reprogramarla contáctanos al numero.`;
 
             let telefono = cita.TELEFONO_FIJO.replace(/\D/g, ''); 
             if (!telefono.startsWith('57')) {

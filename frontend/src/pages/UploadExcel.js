@@ -16,7 +16,7 @@ const UploadExcel = () => {
         if (error.response?.status === 401) {
             console.warn("Token expirado. Cerrando sesión...");
             localStorage.removeItem("token");
-            window.location.href = "/login"; // Redirigir al login
+            window.location.href = "/login"; 
             return "Sesión expirada. Redirigiendo al login...";
         }
         return error.response?.data?.message || "Error al subir el archivo.";
