@@ -28,7 +28,7 @@ const ForgotPassword = () => {
             const response = await fetch(`${API_URL}/auth/forgot-password`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: email.trim() }) // Sanitize input
+                body: JSON.stringify({ email: email.trim() })
             });
 
             if (!response.ok) throw new Error("No se pudo procesar la solicitud.");

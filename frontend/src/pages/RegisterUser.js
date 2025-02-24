@@ -11,6 +11,15 @@ const RegisterUser = () => {
     fetchUsers();
   }, []);
 
+  const handleUnauthorized = (response) => {
+    if (response.status === 401) {
+      console.warn("Token expirado. Cerrando sesión...");
+      localStorage.removeItem("token");
+      window.location.href = "/login"; // Redirigir al login
+      throw new Error("Sesión expirada. Redirigiendo al login...");
+    }
+  };
+
   const fetchUsers = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -23,7 +32,11 @@ const RegisterUser = () => {
       const response = await fetch("http://localhost:3000/api/auth/usuarios", {
         headers: { Authorization: `Bearer ${token}` },
       });
+
+      handleUnauthorized(response); // Verifica si el token ha expirado
+
       if (!response.ok) throw new Error("Error al obtener usuarios");
+
       const data = await response.json();
       setUsers(data);
     } catch (error) {
@@ -59,6 +72,8 @@ const RegisterUser = () => {
         body: JSON.stringify(formData),
       });
 
+      handleUnauthorized(response); // Verifica si el token ha expirado
+
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Error en el registro");
 
@@ -91,7 +106,10 @@ const RegisterUser = () => {
         body: JSON.stringify({ estado: nuevoEstado }),
       });
 
+      handleUnauthorized(response); // Verifica si el token ha expirado
+
       if (!response.ok) throw new Error("Error al actualizar el estado del usuario");
+
       setUsers((prevUsers) =>
         prevUsers.map((user) => (user.id === id ? { ...user, estado: nuevoEstado } : user))
       );
@@ -99,7 +117,7 @@ const RegisterUser = () => {
       setError(error.message);
     }
   };
- 
+
 
   return (
     <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-3xl mx-auto">

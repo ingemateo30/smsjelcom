@@ -1,5 +1,14 @@
 const API_URL = "http://localhost:3000/api/correo";
 
+const handleUnauthorized = (response) => {
+    if (response.status === 401) {
+        console.warn("Token expirado. Cerrando sesión...");
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+        throw new Error("Sesión expirada. Redirigiendo al login...");
+    }
+};
+
 export const sendReminderEmails = async () => {
     try {
         const token = localStorage.getItem("token");
@@ -13,6 +22,8 @@ export const sendReminderEmails = async () => {
             }
         });
 
+        handleUnauthorized(response); // Verifica si el token ha expirado
+
         if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
 
         const contentType = response.headers.get("content-type");
@@ -24,6 +35,7 @@ export const sendReminderEmails = async () => {
             const text = await response.text();
             data = { message: text };
         }
+
         console.log("📩 Respuesta del servidor:", data);
         return { success: true, ...data };
     } catch (error) {
@@ -32,15 +44,12 @@ export const sendReminderEmails = async () => {
     }
 };
 
-
 export const getCronStatus = async () => {
     try {
         const token = localStorage.getItem("token");
-        if (!token) {
-            throw new Error("No hay token disponible.");
-        }
+        if (!token) throw new Error("No hay token disponible.");
 
-        const response = await fetch("http://localhost:3000/api/correo/estado-cron", {
+        const response = await fetch(`${API_URL}/estado-cron`, {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${token}`,
@@ -48,9 +57,9 @@ export const getCronStatus = async () => {
             }
         });
 
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
+        handleUnauthorized(response); // Verifica si el token ha expirado
+
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
 
         return await response.json();
     } catch (error) {

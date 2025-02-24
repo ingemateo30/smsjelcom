@@ -12,6 +12,16 @@ const UploadExcel = () => {
         setMessage("");
     };
 
+    const handleUnauthorized = (error) => {
+        if (error.response?.status === 401) {
+            console.warn("Token expirado. Cerrando sesión...");
+            localStorage.removeItem("token");
+            window.location.href = "/login"; // Redirigir al login
+            return "Sesión expirada. Redirigiendo al login...";
+        }
+        return error.response?.data?.message || "Error al subir el archivo.";
+    };
+
     const handleUpload = async () => {
         if (!file) {
             setMessage("Por favor selecciona un archivo.");
@@ -43,12 +53,12 @@ const UploadExcel = () => {
     
             setMessage(response.data.message);
         } catch (error) {
-            setMessage(error.response?.data?.message || "Error al subir el archivo.");
+            setMessage(handleUnauthorized(error));
         } finally {
             setIsLoading(false);
         }
     };
-    
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4">
             <div className="w-full max-w-md bg-slate-800/50 backdrop-blur-lg rounded-2xl shadow-xl border border-slate-700/30 p-8">
