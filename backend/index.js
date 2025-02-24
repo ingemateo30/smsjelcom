@@ -10,6 +10,7 @@ const db = require("./config/db");
 const authRoutes = require("./routes/auth");
 const citasRoutes = require("./routes/citas");
 const correoroutes = require("./routes/correo");
+const smsRoutes = require("./routes/smsRoutes");
 
 const app = express();
 
@@ -31,6 +32,7 @@ db.getConnection((err, connection) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/citas", citasRoutes);
 app.use("/api/correo", correoroutes);
+app.use("/api/sms", smsRoutes);
 
 
 app.use((err, req, res, next) => {

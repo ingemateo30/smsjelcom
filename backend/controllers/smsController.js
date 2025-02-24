@@ -1,6 +1,7 @@
 const { client, fromPhoneNumber } = require('../config/twilioConfig');
 const db = require("../config/db");
 
+
 exports.sendReminderSMS = async () => {
     console.log("📢 Enviando recordatorio de citas...");
     try {

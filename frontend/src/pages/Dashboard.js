@@ -12,6 +12,7 @@ import {
   FaPaperPlane,
   FaEnvelope,
   FaSms,
+  FaMobileAlt,
 } from "react-icons/fa";
 import logo from "../assets/logos-jelcom.png";
 import { sendReminderEmails } from "../services/emailService";
@@ -78,6 +79,7 @@ const Dashboard = () => {
           <SidebarButton icon={<FaPaperPlane />} text="Correos automaticos" collapsed={isCollapsed} onClick={() => navigate("/dashboard/enviar-correos")} /> {/* ✅ Nuevo botón */}
           <SidebarButton icon={<FaEnvelope />} text="Enviar Correo manual" collapsed={isCollapsed} onClick={() => navigate("/dashboard/enviar-correo")} />
           <SidebarButton icon={<FaSms/>} text="sms automaticos" collapsed={isCollapsed} onClick={() => navigate("/dashboard/enviar-sms")} />
+          <SidebarButton icon={<FaMobileAlt/>} text="sms manual" collapsed={isCollapsed} onClick={() => navigate("/dashboard/enviar-sms-manual")} />
         </nav>
       </aside>
 

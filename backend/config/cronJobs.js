@@ -1,8 +1,10 @@
 const cron = require("node-cron");
 const pool = require("../config/db");
 const sendEmail = require("../config/enviocorreo");
+const smsController = require("../controllers/sms2controller");
 const moment = require("moment"); 
 moment.locale("es");
+
 cron.schedule("0 8 * * *", async () => {
     console.log("⏳ Ejecutando tarea de recordatorio de citas...");
 
@@ -37,3 +39,16 @@ cron.schedule("0 8 * * *", async () => {
         console.error("❌ Error al enviar los recordatorios:", error);
     }
 });
+
+cron.schedule("0 8 * * *", async () => {
+    console.log("Ejecutando envío de recordatorios...");
+  
+    const citasHoy = await db.query("SELECT * FROM citas WHERE fecha = CURDATE()");
+  
+    for (let cita of citasHoy) {
+      const mensaje = `Hola ${cita.nombre}, recuerde su cita el ${cita.fecha} a las ${cita.hora}.`;
+      await smsController.enviarSMS({ body: { telefono: cita.telefono, mensaje } }, { json: () => {} });
+    }
+  
+    console.log("Recordatorios enviados.");
+  });

@@ -11,7 +11,8 @@ import RegisterUser from "./pages/RegisterUser";
 import LandingPage from "./pages/LandingPage";
 import SendEmails from "./pages/SendEmails";
 import SendManualEmail from "./pages/SendManualEmail";
-import SendSMS from "./pages/SendSms"; // ✅ Nueva página
+import SendSMS from "./pages/SendSms";
+import SendManualSms from "./pages/SendManualSms";
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
             <Route path="enviar-correos" element={<SendEmails />} />
             <Route path="enviar-correo" element={<SendManualEmail />} />
             <Route path="enviar-sms" element={<SendSMS />} />
+            <Route path="enviar-sms-manual" element={<SendManualSms />} />
             <Route element={<PrivateRoute requiredRole="admin" />}>
               <Route path="usuarios" element={<RegisterUser />} />
             </Route>
