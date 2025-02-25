@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { BarChart, LineChart, PieChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar, Line, Pie, Cell,ResponsiveContainer } from 'recharts';
+import { BarChart, LineChart, PieChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar, Line, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { MessageSquare, Calendar, CheckCircle, XCircle, Clock } from 'lucide-react';
 
 const DashboardHome = () => {
@@ -98,7 +98,7 @@ const DashboardHome = () => {
                 console.log("Formatted Data:", formattedData);
 
                 return (
-                  
+
                   <PieChart width={400} height={300}>
                     <Pie
                       data={formattedData}
@@ -130,16 +130,20 @@ const DashboardHome = () => {
         </div>
 
         {/* Ranking de Días con Más Confirmaciones */}
-        <div className="bg-slate-800/50 rounded-xl shadow-xl border border-slate-700/30 p-6 mt-6">
-          <h3 className="text-xl font-semibold text-orange-400 mb-4">Días con Más Confirmaciones</h3>
-          <LineChart width={600} height={300} data={data.rankingConfirmaciones}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis dataKey="dia" stroke="#9CA3AF" />
-            <YAxis stroke="#9CA3AF" />
-            <Tooltip contentStyle={{ backgroundColor: '#1F2937' }} />
-            <Legend />
-            <Line type="monotone" dataKey="confirmaciones" stroke="#F97316" name="Confirmaciones" />
-          </LineChart>
+        <div className="bg-slate-800/50 rounded-xl shadow-xl border border-slate-700/30 p-6 mt-6 flex flex-col items-center">
+          <h3 className="text-xl font-semibold text-orange-400 mb-4 text-center">
+            Días con Más Confirmaciones
+          </h3>
+          <div className="w-full max-w-[600px]">
+            <LineChart width={600} height={300} data={data.rankingConfirmaciones}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+              <XAxis dataKey="dia" stroke="#9CA3AF" />
+              <YAxis stroke="#9CA3AF" />
+              <Tooltip contentStyle={{ backgroundColor: '#1F2937' }} />
+              <Legend />
+              <Line type="monotone" dataKey="confirmaciones" stroke="#F97316" name="Confirmaciones" />
+            </LineChart>
+          </div>
         </div>
       </div>
     </div>
