@@ -188,7 +188,7 @@ function generarHtmlRecordatorio(nombre, fecha, hora, profesional) {
             <div style="background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px;">
                 <p style="margin: 5px 0; font-size: 12px; color: #6c757d;">
                     Si tienes dudas o deseas reprogramar tu cita, contáctanos:<br>
-                    📞 <a href="tel:+573007015239" style="color: #007bff; text-decoration: none;">3007015239</a> | 
+                    📞 <a href="tel:+57123456789" style="color: #007bff; text-decoration: none;">numero</a> | 
                     ✉️ <a href="mailto:msalazar5@udi.edu.co" style="color: #007bff; text-decoration: none;">msalazar5@udi.edu.co</a>
                 </p>
                 <p style="margin: 5px 0; font-size: 10px; color: #999;">CARRERA 5 9 102, SAN GIL, Santander <br>
