@@ -115,28 +115,29 @@ exports.resetearPassword = async (req, res) => {
 
     try {
         const [rows] = await db.query(
-            'SELECT id FROM usuarios WHERE reset_token = ? AND reset_token_expiration > NOW()', 
+            "SELECT id FROM usuarios WHERE reset_token = ? AND reset_token_expiration > NOW()",
             [token]
         );
 
-        if (rows.length === 0) return res.status(400).json({ message: 'Token inválido o expirado' });
+        if (rows.length === 0) {
+            return res.status(400).json({ message: "⚠️ Token inválido o expirado. Solicita uno nuevo." });
+        }
 
         const usuario = rows[0];
         const hashedPassword = bcrypt.hashSync(newPassword, bcrypt.genSaltSync(12));
 
         await db.query(
-            'UPDATE usuarios SET password = ?, reset_token = NULL, reset_token_expiration = NULL WHERE id = ?', 
+            "UPDATE usuarios SET password = ?, reset_token = NULL, reset_token_expiration = NULL WHERE id = ?",
             [hashedPassword, usuario.id]
         );
 
-        res.json({ message: 'Contraseña restablecida correctamente' });
+        res.json({ message: "✅ Contraseña restablecida correctamente. Ahora puedes iniciar sesión." });
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Error en el servidor' });
+        res.status(500).json({ message: "❌ Error en el servidor. Inténtalo más tarde." });
     }
 };
-
 
 exports.listarUsuarios = async (req, res) => {
     try {

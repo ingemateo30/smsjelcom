@@ -14,13 +14,11 @@ const DashboardHome = () => {
     porcentajeNoContactados: [],
     rankingConfirmaciones: []
   });
-
   useEffect(() => {
     axios.get('http://localhost:3000/api/dashboard/stats')
       .then(response => setData(response.data))
       .catch(error => console.error("Error al obtener datos:", error));
   }, []);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-6">
       <div className="max-w-7xl mx-auto">
@@ -36,8 +34,6 @@ const DashboardHome = () => {
             <span className="text-sm">Actualizado: {new Date().toLocaleTimeString()}</span>
           </div>
         </div>
-
-        {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
           {[
             { title: "Recordatorios para hoy", value: data.stats?.sms_enviados || 0, icon: MessageSquare },
@@ -59,10 +55,7 @@ const DashboardHome = () => {
             );
           })}
         </div>
-
-        {/* Gráficos */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Envíos por Día */}
           <div className="bg-slate-800/50 rounded-xl shadow-xl border border-slate-700/30 p-6">
             <h3 className="text-xl font-semibold text-orange-400 mb-4">SMS Enviados por Día</h3>
             <div className="w-full h-[300px]">
@@ -81,24 +74,17 @@ const DashboardHome = () => {
               </ResponsiveContainer>
             </div>
           </div>
-
-
-          {/* Estado de Mensajes */}
           <div className="bg-slate-800/50 rounded-xl shadow-xl border border-slate-700/30 p-6">
             <h3 className="text-xl font-semibold text-orange-400 mb-4">Estado de Mensajes</h3>
-
             {data.estadoMensajes?.length > 0 ? (
               (() => {
                 const formattedData = data.estadoMensajes.map(item => ({
                   ...item,
                   name: item.nombre,
-                  color: item.nombre === "pendiente" ? "#F97316" : "#FB923C", // Tonos naranjas: más claro para pendiente, más oscuro para recordatorio enviado
+                  color: item.nombre === "pendiente" ? "#F97316" : "#FB923C",
                 }));
-
                 console.log("Formatted Data:", formattedData);
-
                 return (
-
                   <PieChart width={400} height={300}>
                     <Pie
                       data={formattedData}
@@ -111,7 +97,7 @@ const DashboardHome = () => {
                       nameKey="name"
                     >
                       {formattedData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} /> // Aplica colores personalizados
+                        <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
                     <Tooltip contentStyle={{ backgroundColor: '#1F2937' }} />
@@ -123,13 +109,7 @@ const DashboardHome = () => {
               <p className="text-gray-400 text-center">No hay datos disponibles</p>
             )}
           </div>
-
-
-
-
         </div>
-
-        {/* Ranking de Días con Más Confirmaciones */}
         <div className="bg-slate-800/50 rounded-xl shadow-xl border border-slate-700/30 p-6 mt-6 flex flex-col items-center">
           <h3 className="text-xl font-semibold text-orange-400 mb-4 text-center">
             Días con Más Confirmaciones
@@ -149,5 +129,4 @@ const DashboardHome = () => {
     </div>
   );
 };
-
 export default DashboardHome;

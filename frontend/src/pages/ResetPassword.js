@@ -1,10 +1,11 @@
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { Lock, ArrowRight, AlertCircle, CheckCircle } from "lucide-react";
 import { useState } from "react";
 
 const ResetPassword = () => {
     const [searchParams] = useSearchParams();
     const token = searchParams.get("token");
+    const navigate = useNavigate();
 
     const [newPassword, setNewPassword] = useState("");
     const [message, setMessage] = useState("");
@@ -32,17 +33,19 @@ const ResetPassword = () => {
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || "Error al restablecer la contraseña.");
 
-            setMessage("Contraseña restablecida con éxito.");
+            setMessage(data.message); // ✅ Muestra el mensaje del backend
             setNewPassword("");
 
-            setTimeout(() => setMessage(""), 3000);
+            // ✅ Redirigir al login después de 3 segundos
+            setTimeout(() => {
+                navigate("/login");
+            }, 3000);
         } catch (error) {
             setError(error.message);
         } finally {
             setIsLoading(false);
         }
     };
-
     return (
         <div className="min-h-screen flex items-center justify-center bg-black relative overflow-hidden">
             {/* Fondo con efecto de iluminación */}
