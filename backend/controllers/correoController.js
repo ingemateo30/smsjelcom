@@ -115,7 +115,7 @@ cron.schedule(
     "0 8 * * *",
     async () => {
         console.log("⏳ Ejecutando el envío automático de correos...");
-        await exports.enviarRecordatoriosDiarios({ body: {} }, { json: () => {} });
+        await exports.enviarRecordatoriosDiarios({ body: {} }, { json: () => { } });
     },
     {
         timezone: "America/Bogota",
@@ -205,13 +205,13 @@ function generarHtmlRecordatorio(nombre, fecha, hora, profesional) {
 function formatearHoraAMPM(horaString) {
     if (!/^\d{1,2}:\d{2}$/.test(horaString)) {
         console.error('Formato de hora inválido. Usar "HH:mm"');
-        return horaString; // Devolver original si hay error
+        return horaString;
     }
-    
+
     const [horas, minutos] = horaString.split(':').map(Number);
     const periodo = horas >= 12 ? 'PM' : 'AM';
-    const horas12 = (horas % 12) || 12; // Manejar medianoche (0 -> 12 AM)
-    
+    const horas12 = (horas % 12) || 12;
+
     return `${horas12}:${String(minutos).padStart(2, '0')} ${periodo}`;
 }
 
@@ -236,10 +236,65 @@ exports.sendManualEmail = async (req, res) => {
             to: correo,
             subject: "Recordatorio cita medica",
             html: `
-                <h2>Hola, ${nombre}</h2>
-                <p>${mensaje}</p>
-                <br>
-                <strong>Gracias por confiar en nosotros.</strong>
+            <!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-Mailer" content="Microsoft Outlook 16.0">
+    <title>Recordatorio de Cita</title>
+</head>
+
+<body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #444444;">
+    <!-- Contenedor principal -->
+    <div
+        style="max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 10px; box-shadow: 0 2px 15px rgba(0,0,0,0.1);">
+
+        <!-- Header -->
+        <div style="background: #007bff; padding: 25px; border-radius: 10px 10px 0 0; text-align: center;">
+            <h1 style="color: #ffffff; margin: 15px 0 0 0; font-size: 24px;">Recordatorio de Cita</h1>
+        </div>
+
+        <!-- Contenido -->
+        <div style="padding: 30px 25px;">
+            <p style="font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">Hola ${nombre},</p>
+
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+                <h3 style="color: #2c3e50; margin-top: 0; font-size: 18px;">📅 Detalles de tu cita:</h3>
+                <p style="font-size: 16px; line-height: 1.6; margin: 10px 0; color: #2c3e50; font-weight: 400;">${mensaje}</p>
+            </div> <!-- Información importante -->
+            <div style="border-top: 2px solid #eee; padding-top: 20px;">
+                <p style="font-size: 14px; color: #6c757d;">
+                    ⚠️ Por favor:
+                <ul style="font-size: 14px; color: #6c757d; padding-left: 20px;">
+                    <li>Llegar 15 minutos antes</li>
+                    <li>Traer documentos requeridos</li>
+                    <li>Usar mascarilla si es necesario</li>
+                    <li>Contactanos para reprogramar la cita medica</li>
+                </ul>
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px;">
+            <p style="margin: 5px 0; font-size: 12px; color: #6c757d;">
+                Si tienes dudas o deseas reprogramar tu cita, contáctanos:<br>
+                📞 <a href="tel:+573007015239" style="color: #007bff; text-decoration: none;">3007015239</a> |
+                ✉️ <a href="mailto:msalazar5@udi.edu.co"
+                    style="color: #007bff; text-decoration: none;">msalazar5@udi.edu.co</a>
+            </p>
+            <p style="margin: 5px 0; font-size: 10px; color: #999;">CARRERA 5 9 102, SAN GIL, Santander <br>
+                <a href="[URL_PRIVACIDAD]" style="color: #6c757d; text-decoration: none;">Política de Privacidad</a> |
+                <a href="[URL_CANCELAR_SUSCRIPCION]" style="color: #6c757d; text-decoration: none;">Cancelar
+                    suscripción</a>
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>
             `
         };
         await transporter.sendMail(mailOptions);

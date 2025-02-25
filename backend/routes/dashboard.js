@@ -6,7 +6,7 @@ const db = require('../config/db.js');
 router.get('/stats', async (req, res) => {
   try {
     const [stats] = await db.query(`
-     SELECT (SELECT COUNT(*) FROM citas WHERE DATE(fecha_cita) = CURDATE()) AS sms_enviados, (SELECT COUNT(*) FROM citas WHERE DATE(fecha_cita) = CURDATE()) AS citas_programadas, (SELECT COUNT(*) FROM citas WHERE estado = 'recordatorio enviado') AS confirmaciones, (SELECT COUNT(*) FROM citas WHERE estado = 'pendiente') AS cancelaciones; 
+     SELECT (SELECT COUNT(*) FROM citas WHERE DATE(fecha_cita) = CURDATE() + INTERVAL 1 DAY) AS sms_enviados, (SELECT COUNT(*) FROM citas WHERE DATE(fecha_cita) = CURDATE()) AS citas_programadas, (SELECT COUNT(*) FROM citas WHERE estado = 'recordatorio enviado') AS confirmaciones, (SELECT COUNT(*) FROM citas WHERE estado = 'pendiente') AS cancelaciones; 
     `);
 
     const [enviosPorHora] = await db.query(`
