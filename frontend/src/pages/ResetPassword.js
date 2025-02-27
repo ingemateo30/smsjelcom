@@ -33,10 +33,9 @@ const ResetPassword = () => {
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || "Error al restablecer la contraseña.");
 
-            setMessage(data.message); // ✅ Muestra el mensaje del backend
+            setMessage(data.message);
             setNewPassword("");
 
-            // ✅ Redirigir al login después de 3 segundos
             setTimeout(() => {
                 navigate("/login");
             }, 3000);
@@ -46,15 +45,12 @@ const ResetPassword = () => {
             setIsLoading(false);
         }
     };
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-black relative overflow-hidden">
-            {/* Fondo con efecto de iluminación */}
             <div className="absolute inset-0 bg-gradient-to-br from-orange-600/20 to-black opacity-90"></div>
 
-            {/* Contenedor principal */}
             <div className="relative z-10 w-full max-w-md p-8 bg-black/40 backdrop-blur-md rounded-2xl shadow-lg border border-orange-500/50">
-                
-                {/* Encabezado */}
                 <div className="text-center mb-8">
                     <h2 className="text-3xl font-bold text-orange-400 mb-2">
                         Nueva Contraseña
@@ -63,7 +59,6 @@ const ResetPassword = () => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Input Contraseña */}
                     <div className="relative">
                         <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-orange-400 w-5 h-5" />
                         <input
@@ -76,7 +71,6 @@ const ResetPassword = () => {
                         />
                     </div>
 
-                    {/* Botón de enviar */}
                     <button
                         type="submit"
                         disabled={isLoading}
@@ -95,7 +89,6 @@ const ResetPassword = () => {
                         )}
                     </button>
 
-                    {/* Mensajes de estado */}
                     {message && (
                         <div className={`p-4 rounded-lg flex items-center gap-3 ${
                             message.toLowerCase().includes("éxito") 
@@ -115,7 +108,6 @@ const ResetPassword = () => {
                         </div>
                     )}
 
-                    {/* Enlace de regreso */}
                     <div className="text-center">
                         <Link 
                             to="/login"

@@ -37,7 +37,8 @@ const dashboardRoutes = require('./routes/dashboard');
 app.use('/api/dashboard', dashboardRoutes);
 const whatsappRoutes = require("./routes/whatsappRoutes");
 app.use("/api/whatsapp", whatsappRoutes);
-
+const configRoutes = require("./routes/configRoutes");
+app.use("/api/config", configRoutes);
 
 app.use((err, req, res, next) => {
     console.error(err.stack);

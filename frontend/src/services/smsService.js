@@ -12,3 +12,13 @@ export const sendReminderSMS = async () => {
     }
 };
 
+export const getSMSBalance = async () => {
+    try {
+        const response = await axios.get("http://localhost:3000/api/sms/saldo"); // Ajusta la URL según tu API
+        return response.data;
+    } catch (error) {
+        console.error("Error al obtener el saldo:", error);
+        return { success: false, balance: 0, message: "No se pudo obtener el saldo" };
+    }
+};
+

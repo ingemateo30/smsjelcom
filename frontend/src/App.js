@@ -13,6 +13,8 @@ import SendEmails from "./pages/SendEmails";
 import SendManualEmail from "./pages/SendManualEmail";
 import SendSMS from "./pages/SendSms";
 import SendManualSms from "./pages/SendManualSms";
+import SendWhatsApp from "./pages/SendWhatsApp";
+import ConfigAdmin from "./pages/ConfigAdmin";
 
 const App = () => {
   return (
@@ -32,10 +34,11 @@ const App = () => {
             <Route path="enviar-correo" element={<SendManualEmail />} />
             <Route path="enviar-sms" element={<SendSMS />} />
             <Route path="enviar-sms-manual" element={<SendManualSms />} />
+            <Route path="enviar-whatsapp" element={<SendWhatsApp />} />
             <Route element={<PrivateRoute requiredRole="admin" />}>
               <Route path="usuarios" element={<RegisterUser />} />
+              <Route path="configuracion" element={<ConfigAdmin />} />
             </Route>
-            <Route path="configuracion" element={<h1>Configuración</h1>} />
           </Route>
         </Route>
         <Route element={<PrivateRoute requiredRole="admin" />}>

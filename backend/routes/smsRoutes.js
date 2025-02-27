@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { sendManualSMS, sendReminderSMS } = require("../controllers/sms2controller"); // ✅ Importar correctamente
+const { sendManualSMS, sendReminderSMS, getSaldoLabsMobile } = require("../controllers/sms2controller"); // ✅ Importar correctamente
 
 router.post("/enviar-sms", sendManualSMS);
 router.post("/enviar", async (req, res) => {
@@ -15,6 +15,7 @@ router.post("/enviar", async (req, res) => {
         return res.status(500).json({ success: false, message: "Error al enviar recordatorios", error: error.message });
     }
 });
+router.get("/saldo", getSaldoLabsMobile);
 
 module.exports = router;
 

@@ -39,7 +39,7 @@ const DashboardHome = () => {
             { title: "Recordatorios para hoy", value: data.stats?.sms_enviados || 0, icon: MessageSquare },
             { title: "Citas Programadas", value: data.stats?.citas_programadas || 0, icon: Calendar },
             { title: "Confirmaciones", value: data.stats?.confirmaciones || 0, icon: CheckCircle },
-            { title: "Cancelaciones", value: data.stats?.cancelaciones || 0, icon: XCircle }
+            { title: "Cancelaciones/no enviados", value: data.stats?.cancelaciones || 0, icon: XCircle }
           ].map((stat, index) => {
             const Icon = stat.icon;
             return (

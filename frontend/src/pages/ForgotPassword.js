@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Mail, ArrowRight, AlertCircle, CheckCircle } from "lucide-react";
+import logo from '../assets/logos-jelcom.png';
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3000/api";
 
@@ -8,6 +9,13 @@ const ForgotPassword = () => {
     const [email, setEmail] = useState("");
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [animateFields, setAnimateFields] = useState(false);
+
+    useEffect(() => {
+        setTimeout(() => {
+            setAnimateFields(true);
+        }, 100);
+    }, []);
 
     const validateEmail = (email) => {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -43,26 +51,35 @@ const ForgotPassword = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-black relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-600/20 to-black opacity-90"></div>
+        <div className="min-h-screen flex items-center justify-center bg-gray-900 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-600/20 via-gray-900 to-black"></div>
+            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-1/3 right-1/4 w-72 h-72 bg-orange-600/10 rounded-full blur-3xl"></div>
 
-            <div className="relative z-10 w-full max-w-md p-8 bg-black/40 backdrop-blur-md rounded-2xl shadow-lg border border-orange-500/50">
-                <div className="text-center mb-8">
-                    <h2 className="text-3xl font-bold text-orange-400 mb-2">Recuperar Contraseña</h2>
-                    <p className="text-gray-300">Ingresa tu correo para restablecer tu contraseña</p>
+            <div className="relative z-10 w-full max-w-md p-8 bg-gray-900/80 backdrop-blur-lg rounded-2xl shadow-2xl border border-orange-500/30">
+                <div className="flex flex-col items-center mb-8">
+                    <img src={logo} alt="Jelcom Logo" className="h-16 mb-4" />
+                    <h2 className="text-center text-3xl font-bold mb-1">
+                        <span className="text-white">Recuperar </span>
+                        <span className="text-orange-500">Contraseña</span>
+                    </h2>
+                    <p className="text-center text-gray-400">Ingresa tu correo para restablecer tu contraseña</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="relative">
-                        <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-orange-400 w-5 h-5" />
-                        <input
-                            type="email"
-                            placeholder="Correo electrónico"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            className="w-full pl-12 pr-4 py-3 bg-orange-500/10 backdrop-blur-md border border-orange-400/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                        />
+                    <div className={`relative transition-all duration-500 ${animateFields ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
+                        <label className="text-sm text-orange-400 font-medium ml-2 mb-1 block">Correo electrónico</label>
+                        <div className="relative">
+                            <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-orange-400 w-5 h-5" />
+                            <input
+                                type="email"
+                                placeholder="usuario@ejemplo.com"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                                className="w-full pl-12 pr-4 py-3 bg-gray-800 border border-orange-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                            />
+                        </div>
                     </div>
 
                     <button
