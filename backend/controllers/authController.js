@@ -4,6 +4,7 @@ const db = require('../config/db');
 const User = require('../models/user');
 const transporter = require('../config/emailConfig');
 const crypto = require('crypto');
+const { body, validationResult } = require("express-validator");
 require('dotenv').config();
 
 // 🔹 Registro de usuario con mayor seguridad
@@ -32,41 +33,48 @@ exports.register = async (req, res) => {
 
 // 🔹 Inicio de sesión seguro con JWT mejorado
 exports.login = async (req, res) => {
+    // 📌 Verificar si hay errores de validación
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     const { email, password } = req.body;
 
     try {
         const user = await User.buscarPorEmail(email);
-        if (!user) return res.status(401).json({ message: 'Credenciales inválidas' });
+        if (!user) return res.status(401).json({ message: "Credenciales inválidas" });
 
-        if (user.estado === 'inactivo') {
-            return res.status(403).json({ message: 'Cuenta inactiva. Contacta al administrador.' });
+        if (user.estado === "inactivo") {
+            return res.status(403).json({ message: "Cuenta inactiva. Contacta al administrador." });
         }
 
+        // 📌 Validar la contraseña con bcrypt
         const validPassword = bcrypt.compareSync(password, user.password);
-        if (!validPassword) return res.status(401).json({ message: 'Credenciales inválidas' });
+        if (!validPassword) return res.status(401).json({ message: "Credenciales inválidas" });
 
         const token = jwt.sign(
             { id: user.id, rol: user.rol },
             process.env.JWT_SECRET,
-            { expiresIn: '1h', algorithm: 'HS256' }
+            { expiresIn: "1h", algorithm: "HS256" }
         );
 
-        res.cookie('token', token, {
+        res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict'
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
         });
 
-        res.status(200).json({ 
-            message: 'Login exitoso', 
-            token, 
+        res.status(200).json({
+            message: "Login exitoso",
+            token,
             rol: user.rol,
-            estado: user.estado
+            estado: user.estado,
         });
 
     } catch (error) {
-        console.error('❌ Error en login:', error);
-        res.status(500).json({ message: 'Error en el servidor' });
+        console.error("❌ Error en login:", error);
+        res.status(500).json({ message: "Error en el servidor" });
     }
 };
 
