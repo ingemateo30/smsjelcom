@@ -35,6 +35,8 @@ app.use("/api/correo", correoroutes);
 app.use("/api/sms", smsRoutes);
 const dashboardRoutes = require('./routes/dashboard');
 app.use('/api/dashboard', dashboardRoutes);
+const whatsappRoutes = require("./routes/whatsappRoutes");
+app.use("/api/whatsapp", whatsappRoutes);
 
 
 app.use((err, req, res, next) => {

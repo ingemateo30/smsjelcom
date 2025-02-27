@@ -132,7 +132,6 @@ function isValidEmail(email) {
 function generarHtmlRecordatorio(nombre, fecha, hora, profesional) {
     const horaFormateada = formatearHoraAMPM(hora);
     return `
-    
        <!DOCTYPE html>
     <html lang="es">
     <head>
@@ -142,18 +141,12 @@ function generarHtmlRecordatorio(nombre, fecha, hora, profesional) {
         <title>Recordatorio de Cita</title>
     </head>
     <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #444444;">
-        <!-- Contenedor principal -->
         <div style="max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 10px; box-shadow: 0 2px 15px rgba(0,0,0,0.1);">
-            
-            <!-- Header -->
             <div style="background: #007bff; padding: 25px; border-radius: 10px 10px 0 0; text-align: center;">
                 <h1 style="color: #ffffff; margin: 15px 0 0 0; font-size: 24px;">Recordatorio de Cita</h1>
             </div>
-
-            <!-- Contenido -->
             <div style="padding: 30px 25px;">
                 <p style="font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">Hola ${nombre},</p>
-                
                 <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
                     <h3 style="color: #2c3e50; margin-top: 0; font-size: 18px;">📅 Detalles de tu cita:</h3>
                     <ul style="padding-left: 20px; margin: 10px 0;">
@@ -170,7 +163,7 @@ function generarHtmlRecordatorio(nombre, fecha, hora, profesional) {
                             ${profesional}
                         </li>
                     </ul>
-                </div>    <!-- Información importante -->
+                </div> 
                 <div style="border-top: 2px solid #eee; padding-top: 20px;">
                     <p style="font-size: 14px; color: #6c757d;">
                         ⚠️ Por favor:
