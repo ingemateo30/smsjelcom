@@ -48,4 +48,3 @@ export const resetearPassword = async (token, newPassword) => {
     return { error: error.response?.data?.message || "Error al restablecer contraseña" };
   }
 };
-
