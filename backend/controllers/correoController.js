@@ -185,7 +185,7 @@ function generarHtmlRecordatorio(nombre, fecha, hora, profesional) {
                     ✉️ <a href="mailto:msalazar5@udi.edu.co" style="color: #007bff; text-decoration: none;">msalazar5@udi.edu.co</a>
                 </p>
                 <p style="margin: 5px 0; font-size: 10px; color: #999;">CARRERA 5 9 102, SAN GIL, Santander <br>
-                    <a href="[URL_PRIVACIDAD]" style="color: #6c757d; text-decoration: none;">Política de Privacidad</a> | 
+                    <a href="https://hospital-regional-de-san-gil.micolombiadigital.gov.co/sites/hospital-regional-de-san-gil/content/files/000006/269_politicaprotecciondedatospersonales.pdf" style="color: #6c757d; text-decoration: none;">Política de Proteccion de datos</a> | 
                     <a href="[URL_CANCELAR_SUSCRIPCION]" style="color: #6c757d; text-decoration: none;">Cancelar suscripción</a>
                 </p>
             </div>

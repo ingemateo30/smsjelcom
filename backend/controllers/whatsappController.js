@@ -27,29 +27,21 @@ const sendWhatsAppReminder = async (req, res) => {
                         body: message,
                     }
                 );
-
                 console.log(`✅ Mensaje enviado a ${reminder.telefono}`);
-
-                // 🔹 Actualizar el estado del recordatorio a "Enviado"
                 await WhatsAppReminder.updateReminderStatus(reminder.id, "recordatorio enviado");
-
             } catch (error) {
                 console.error(`❌ Error enviando mensaje a ${reminder.telefono}:`, error);
             }
-
-            // ⏳ Esperar 3 segundos antes de enviar el siguiente mensaje
             if (i < reminders.length - 1) {
                 await new Promise(resolve => setTimeout(resolve, 3000));
             }
         }
-
         res.status(200).json({ message: "Mensajes enviados con éxito." });
     } catch (error) {
         console.error("❌ Error en el envío de recordatorios:", error);
         res.status(500).json({ error: "Error al enviar recordatorios." });
     }
 };
-
 module.exports = { sendWhatsAppReminder };
 
 
