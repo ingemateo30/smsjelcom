@@ -17,6 +17,11 @@ const app = express();
 app.use(cors({ origin: process.env.CLIENT_URL || "*" }));
 app.use(express.json());
 app.use(morgan("dev"));
+app.use(express.urlencoded({ extended: true }));
+app.use(require("body-parser").text());
+app.use(require("body-parser").raw());
+app.use(require("body-parser").json());
+app.use(require("body-parser").urlencoded({ extended: true }));
 
 
 db.getConnection((err, connection) => {

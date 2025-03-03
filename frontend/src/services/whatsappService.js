@@ -10,3 +10,14 @@ export const sendWhatsAppReminders = async () => {
     throw error;
   }
 };
+/*
+export const getResponses = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/mensajes`);
+      return response.data;
+    } catch (error) {
+      console.error("Error obteniendo respuestas de WhatsApp:", error);
+      return [];
+    }
+  };
+*/
