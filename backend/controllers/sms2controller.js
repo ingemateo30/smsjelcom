@@ -21,7 +21,7 @@ exports.sendReminderSMS = async () => {
         for (let cita of citas) {
             console.log(`📩 Enviando recordatorio para: ${cita.NOMBRE} con ${cita.PROFESIONAL}`);
             const fechaFormateada = new Date(cita.FECHA_CITA).toISOString().split('T')[0];
-            const mensaje = `Hola ${cita.NOMBRE}, recuerda tu cita de ${cita.SERVICIO} el día ${fechaFormateada} a las ${cita.HORA_CITA}, si necesitas reprogramarla contáctanos al número.`;
+            const mensaje = `Hola ${cita.NOMBRE},recuerda tu cita ${cita.SERVICIO} el día ${fechaFormateada} hora ${cita.HORA_CITA},si necesitas reprogramarla contáctanos al 3007015239.`;
             let telefono = cita.TELEFONO_FIJO.replace(/\D/g, '');
             if (!telefono.startsWith('57')) {
                 telefono = `57${telefono}`;
