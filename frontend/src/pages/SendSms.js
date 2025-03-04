@@ -53,7 +53,7 @@ const SendSMS = () => {
 
                 {/* Mostrar el saldo disponible */}
                 <div className={`mb-4 text-center text-lg font-medium ${errorBalance ? "text-red-400" : "text-orange-400"}`}>
-                    {errorBalance ? "Error al obtener saldo" : `Saldo disponible: ${balance} SMS`}
+                    {errorBalance ? "Error al obtener saldo" : `Saldo disponible: ${balance} Creditos`}
                 </div>
 
                 {/* Mostrar mensaje de saldo insuficiente */}

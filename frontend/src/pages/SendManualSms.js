@@ -81,7 +81,7 @@ const Enviarsms = () => {
                     <div>
                         <label className="text-gray-300 block mb-1">Numero Telefono</label>
                         <input
-                            type="email"
+                            type="tel"
                             value={correo}
                             onChange={(e) => setCorreo(e.target.value)}
                             className="w-full p-3 rounded-lg bg-slate-900 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500"
