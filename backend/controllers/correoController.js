@@ -31,9 +31,9 @@ exports.enviarRecordatoriosDiarios = async (req, res) => {
         console.log("📅 Buscando citas para la fecha:", fechaManana);
 
         const [citas] = await db.query(
-            `SELECT ID, NOMBRE, EMAIL,PROFESIONAL,SERVICIO, FECHA_CITA as fecha, HORA_CITA as hora 
+            `SELECT ID, NOMBRE, EMAIL, PROFESIONAL, SERVICIO, FECHA_CITA as fecha, HORA_CITA as hora 
             FROM citas 
-            WHERE FECHA_CITA = ? 
+            WHERE FECHA_CITA = ?
             AND estado != 'recordatorio enviado' 
             AND email IS NOT NULL 
             AND email NOT LIKE '%@temporal.com'`,
@@ -50,25 +50,49 @@ exports.enviarRecordatoriosDiarios = async (req, res) => {
         let recordatoriosEnviados = [];
         let errores = [];
 
-        for (const cita of citas) {
-            try {
-                if (!isValidEmail(cita.EMAIL)) {
-                    errores.push({ citaId: cita.ID, error: "Formato de correo inválido" });
-                    continue;
+        // Función para enviar una tanda de correos
+        const enviarTandaCorreos = async (tanda) => {
+            const promesas = tanda.map(async (cita) => {
+                try {
+                    if (!isValidEmail(cita.EMAIL)) {
+                        errores.push({ citaId: cita.ID, error: "Formato de correo inválido" });
+                        return null;
+                    }
+
+                    await transporter.sendMail({
+                        from: process.env.EMAIL_USER,
+                        to: cita.EMAIL,
+                        subject: "Recordatorio Cita Médica Hospital Regional de Sangil",
+                        html: generarHtmlRecordatorio(cita.NOMBRE, cita.fecha, cita.hora, cita.SERVICIO),
+                    });
+
+                    await db.query("UPDATE citas SET estado = 'recordatorio enviado' WHERE ID = ?", [cita.ID]);
+                    return cita.ID;
+                } catch (error) {
+                    console.error(`❌ Error en cita ${cita.ID}:`, error);
+                    errores.push({ citaId: cita.ID, error: error.message });
+                    return null;
                 }
+            });
 
-                await transporter.sendMail({
-                    from: process.env.EMAIL_USER,
-                    to: cita.EMAIL,
-                    subject: "Recordatorio Cita Médica Hospital Regional de Sangil",
-                    html: generarHtmlRecordatorio(cita.NOMBRE, cita.fecha, cita.hora, cita.SERVICIO),
-                });
+            const resultados = await Promise.allSettled(promesas);
+            return resultados
+                .filter(resultado => resultado.status === 'fulfilled' && resultado.value !== null)
+                .map(resultado => resultado.value);
+        };
 
-                await db.query("UPDATE citas SET estado = 'recordatorio enviado' WHERE ID = ?", [cita.ID]);
-                recordatoriosEnviados.push(cita.ID);
-            } catch (error) {
-                console.error(`❌ Error en cita ${cita.ID}:`, error);
-                errores.push({ citaId: cita.ID, error: error.message });
+        // Enviar correos en tandas de 10
+        for (let i = 0; i < citas.length; i += 10) {
+            const tanda = citas.slice(i, i + 10);
+            console.log(`📧 Enviando tanda ${Math.floor(i/10) + 1} de correos...`);
+            
+            const enviadosEnTanda = await enviarTandaCorreos(tanda);
+            recordatoriosEnviados.push(...enviadosEnTanda);
+
+            // Si no es la última tanda, esperar 30 segundos
+            if (i + 10 < citas.length) {
+                console.log("⏳ Esperando 30 segundos antes de la próxima tanda...");
+                await new Promise(resolve => setTimeout(resolve, 30000));
             }
         }
 
@@ -79,10 +103,17 @@ exports.enviarRecordatoriosDiarios = async (req, res) => {
             totalErrores: errores.length,
         };
 
-        if (!req.fake) return res.json({ message: "Envío de recordatorios completado.", estadoCron });
+        if (!req.fake) return res.json({ 
+            message: "Envío de recordatorios completado.", 
+            estadoCron,
+            errores
+        });
     } catch (error) {
         console.error("❌ Error en el proceso de recordatorios:", error);
-        if (!req.fake) return res.status(500).json({ message: "Error al enviar recordatorios.", error: error.message });
+        if (!req.fake) return res.status(500).json({ 
+            message: "Error al enviar recordatorios.", 
+            error: error.message 
+        });
     }
 };
 

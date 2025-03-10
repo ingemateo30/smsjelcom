@@ -29,15 +29,13 @@ exports.sendReminderSMS = async () => {
             if (telefono.length >= 10) {
                 try {
                     console.log(`📲 Enviando SMS a ${telefono}...`);
-                    const apiUser = process.env.LABSMOBILE_USER;  // Usuario de LabsMobile
+                    const apiUser = process.env.LABSMOBILE_USER;
                     const apiToken = process.env.LABSMOBILE_API_KEY;
                     const authHeader = 'Basic ' + Buffer.from(`${apiUser}:${apiToken}`).toString('base64');
                     const clientLabsMobile = new LabsMobileClient(apiUser, apiToken);
                     const bodySms = new LabsMobileModelTextMessage([telefono], mensaje);
                     const response = await clientLabsMobile.sendSms(bodySms);
                     console.log(response);
-
-
                     console.log(`✅ Recordatorio enviado a: ${cita.TELEFONO_FIJO}`);
                     console.log(response);
 
