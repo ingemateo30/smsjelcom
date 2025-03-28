@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { FaPhoneAlt, FaEnvelope, FaWhatsapp, FaCheckCircle, FaHeadset, FaChartLine, FaHandshake, FaUsers, FaArrowRight } from "react-icons/fa";
 import { MdSupportAgent, MdOutlineMarkEmailRead, MdPayments } from "react-icons/md";
 import logo from '../assets/logos-jelcom.png';
+import Nav from './nav';
 
 const LandingPage = () => {
   const servicios = [
@@ -59,22 +60,7 @@ const LandingPage = () => {
     <div className="bg-gray-900 text-white min-h-screen">
       {/* Barra de Navegación */}
       <header className="fixed w-full z-50 bg-gray-900 bg-opacity-95 p-4 flex justify-between items-center shadow-lg">
-        <div className="flex items-center space-x-2">
-          <img src={logo} alt="Jelcom Logo" className="h-12" />
-          <h1 className="text-2xl font-bold text-orange-500">Jelcom</h1>
-        </div>
-        <nav className="hidden md:flex items-center space-x-6">
-          <a href="#servicios" className="text-gray-300 hover:text-orange-500 transition">Servicios</a>
-          <a href="#beneficios" className="text-gray-300 hover:text-orange-500 transition">Beneficios</a>
-          <a href="#testimonios" className="text-gray-300 hover:text-orange-500 transition">Testimonios</a>
-          <a href="#contacto" className="text-gray-300 hover:text-orange-500 transition">Contacto</a>
-          <Link to="/login" className="bg-orange-500 px-4 py-2 rounded font-bold hover:bg-orange-600 transition">
-            Iniciar Sesión
-          </Link>
-        </nav>
-        <button className="md:hidden text-orange-500 text-2xl">
-          ☰
-        </button>
+     <Nav />
       </header>
 
       {/* Sección Hero */}
