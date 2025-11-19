@@ -164,6 +164,64 @@ function obtenerDireccionPorEspecialidad(servicio) {
 }
 
 /**
+ * Enviar mensaje interactivo con botón de cancelar cita
+ * Alternativa a la plantilla, se envía después del recordatorio
+ */
+async function enviarMensajeConBotonCancelar(numero, citaId, nombrePaciente) {
+  try {
+    const payload = {
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to: numero,
+      type: "interactive",
+      interactive: {
+        type: "button",
+        body: {
+          text: `Hola ${nombrePaciente}, ¿necesitas cancelar tu cita?\n\nSi no puedes asistir, presiona el botón de abajo para cancelarla.`
+        },
+        action: {
+          buttons: [
+            {
+              type: "reply",
+              reply: {
+                id: "cancel_appointment",
+                title: "Cancelar Cita"
+              }
+            },
+            {
+              type: "reply",
+              reply: {
+                id: "keep_appointment",
+                title: "Mantener Cita"
+              }
+            }
+          ]
+        }
+      }
+    };
+
+    const response = await axios.post(
+      META_WA_BASE_URL + '/' + META_PHONE_NUMBER_ID + '/messages',
+      payload,
+      {
+        headers: {
+          Authorization: 'Bearer ' + META_TOKEN,
+          "Content-Type": "application/json",
+        },
+        timeout: 30000,
+      }
+    );
+
+    console.log('   ✅ Mensaje con botón de cancelar enviado');
+    return { success: true, response: response.data };
+
+  } catch (error) {
+    console.error('❌ Error enviando mensaje con botón:', error.response?.data || error.message);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
  * Función para enviar plantilla de WhatsApp vía Meta API
  */
 async function enviarPlantillaMeta(numero, reminder) {
@@ -313,9 +371,23 @@ const sendWhatsAppReminder = async (req, res) => {
         if (resultado.success) {
           resultados.exitosos++;
           await WhatsAppReminder.updateReminderStatus(reminder.id, "recordatorio enviado");
-          
+
           console.log('   ✅ ENVIADO');
-          
+
+          // Esperar 3 segundos antes de enviar el mensaje con botón
+          await esperar(3000);
+
+          // Enviar mensaje con botón de cancelar cita
+          const resultadoBoton = await enviarMensajeConBotonCancelar(
+            numero,
+            reminder.id,
+            reminder.nombre_paciente
+          );
+
+          if (!resultadoBoton.success) {
+            console.log('   ⚠️ No se pudo enviar botón de cancelar, pero recordatorio fue exitoso');
+          }
+
           io.emit("whatsapp:exito", {
             current: i + 1,
             total: reminders.length,
@@ -436,7 +508,307 @@ const processWhatsAppReply = async (req, res) => {
   }
 };
 
+/**
+ * Webhook de Meta para verificación (GET)
+ * Meta envía un GET request para verificar el webhook
+ */
+const verifyWebhook = (req, res) => {
+  try {
+    const mode = req.query['hub.mode'];
+    const token = req.query['hub.verify_token'];
+    const challenge = req.query['hub.challenge'];
+
+    const VERIFY_TOKEN = process.env.META_VERIFY_TOKEN || "mi_token_secreto_12345";
+
+    if (mode && token) {
+      if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+        console.log('✅ WEBHOOK VERIFICADO');
+        res.status(200).send(challenge);
+      } else {
+        console.log('❌ VERIFICACIÓN FALLIDA');
+        res.sendStatus(403);
+      }
+    } else {
+      res.sendStatus(400);
+    }
+  } catch (error) {
+    console.error("❌ Error en verificación de webhook:", error);
+    res.sendStatus(500);
+  }
+};
+
+/**
+ * Webhook de Meta para recibir mensajes (POST)
+ * Maneja mensajes entrantes y botones interactivos
+ */
+const handleMetaWebhook = async (req, res) => {
+  try {
+    const body = req.body;
+
+    // Responder rápido a Meta (requisito de Meta API)
+    res.sendStatus(200);
+
+    // Validar que sea una notificación de WhatsApp
+    if (body.object !== 'whatsapp_business_account') {
+      console.log('⚠️ No es una notificación de WhatsApp Business');
+      return;
+    }
+
+    // Procesar cada entrada
+    for (const entry of body.entry) {
+      for (const change of entry.changes) {
+        if (change.field === 'messages') {
+          const value = change.value;
+
+          // Procesar mensajes
+          if (value.messages) {
+            for (const message of value.messages) {
+              await procesarMensajeEntrante(message, value.metadata);
+            }
+          }
+
+          // Procesar estados de mensajes (entregado, leído, etc.)
+          if (value.statuses) {
+            for (const status of value.statuses) {
+              await procesarEstadoMensaje(status);
+            }
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error("❌ Error en webhook de Meta:", error);
+  }
+};
+
+/**
+ * Procesar mensaje entrante de WhatsApp
+ */
+async function procesarMensajeEntrante(message, metadata) {
+  try {
+    const from = message.from; // Número del remitente
+    const messageId = message.id;
+    const timestamp = message.timestamp;
+
+    console.log('\n📨 MENSAJE ENTRANTE:');
+    console.log('   De:', from);
+    console.log('   Tipo:', message.type);
+
+    // Manejar botón interactivo (cuando el paciente hace clic en "Cancelar Cita")
+    if (message.type === 'interactive') {
+      const buttonReply = message.interactive.button_reply;
+      const buttonId = buttonReply.id;
+
+      console.log('   Botón presionado:', buttonId);
+
+      if (buttonId === 'cancel_appointment') {
+        await iniciarFlujoCancelacion(from, messageId);
+      }
+    }
+
+    // Manejar respuesta de texto (cuando el paciente envía el motivo)
+    else if (message.type === 'text') {
+      const textoMensaje = message.text.body;
+      console.log('   Mensaje:', textoMensaje);
+
+      // Verificar si el paciente está en medio de un flujo de cancelación
+      const [conversaciones] = await db.query(
+        `SELECT * FROM whatsapp_conversaciones
+         WHERE telefono = ? AND estado_conversacion = 'esperando_motivo'
+         ORDER BY created_at DESC LIMIT 1`,
+        [from]
+      );
+
+      if (conversaciones.length > 0) {
+        await completarCancelacion(conversaciones[0], textoMensaje);
+      }
+    }
+  } catch (error) {
+    console.error('❌ Error procesando mensaje entrante:', error);
+  }
+}
+
+/**
+ * Procesar estado de mensaje (entregado, leído, fallido)
+ */
+async function procesarEstadoMensaje(status) {
+  try {
+    const messageId = status.id;
+    const statusType = status.status; // sent, delivered, read, failed
+
+    console.log(`📊 Estado de mensaje ${messageId}: ${statusType}`);
+
+    // Aquí puedes actualizar el estado en tu base de datos si lo necesitas
+  } catch (error) {
+    console.error('❌ Error procesando estado de mensaje:', error);
+  }
+}
+
+/**
+ * Iniciar flujo de cancelación cuando el paciente presiona "Cancelar Cita"
+ */
+async function iniciarFlujoCancelacion(telefono, messageId) {
+  try {
+    console.log('\n🔄 INICIANDO FLUJO DE CANCELACIÓN');
+    console.log('   Teléfono:', telefono);
+
+    // Buscar la cita del paciente para mañana
+    const [citas] = await db.query(
+      `SELECT * FROM citas
+       WHERE TELEFONO_FIJO = ?
+       AND DATE(FECHA_CITA) = DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+       AND ESTADO IN ('pendiente', 'recordatorio enviado')
+       LIMIT 1`,
+      [telefono.replace('+57', '')]
+    );
+
+    if (citas.length === 0) {
+      console.log('   ⚠️ No se encontró cita para este número');
+      await enviarMensajeTexto(telefono, 'No encontramos una cita programada para mañana con este número.');
+      return;
+    }
+
+    const cita = citas[0];
+    console.log('   ✅ Cita encontrada:', cita.ID);
+
+    // Crear o actualizar conversación
+    await db.query(
+      `INSERT INTO whatsapp_conversaciones (telefono, cita_id, estado_conversacion, mensaje_id)
+       VALUES (?, ?, 'esperando_motivo', ?)
+       ON DUPLICATE KEY UPDATE
+       estado_conversacion = 'esperando_motivo',
+       mensaje_id = ?,
+       updated_at = CURRENT_TIMESTAMP`,
+      [telefono, cita.ID, messageId, messageId]
+    );
+
+    // Enviar mensaje solicitando el motivo
+    const mensaje = `Por favor, indícanos el motivo de la cancelación de tu cita de ${cita.SERVICIO} programada para mañana ${cita.FECHA_CITA} a las ${cita.HORA_CITA}.
+
+Escribe tu motivo y te confirmaremos la cancelación.`;
+
+    await enviarMensajeTexto(telefono, mensaje);
+    console.log('   ✅ Mensaje de solicitud de motivo enviado');
+
+  } catch (error) {
+    console.error('❌ Error iniciando flujo de cancelación:', error);
+  }
+}
+
+/**
+ * Completar cancelación cuando el paciente envía el motivo
+ */
+async function completarCancelacion(conversacion, motivo) {
+  try {
+    console.log('\n✅ COMPLETANDO CANCELACIÓN');
+    console.log('   Cita ID:', conversacion.cita_id);
+    console.log('   Motivo:', motivo);
+
+    // Actualizar la cita como cancelada
+    await db.query(
+      `UPDATE citas
+       SET ESTADO = 'cancelada',
+           MOTIVO_CANCELACION = ?,
+           FECHA_CANCELACION = NOW(),
+           CANCELADO_POR = 'paciente'
+       WHERE ID = ?`,
+      [motivo, conversacion.cita_id]
+    );
+
+    // Marcar la conversación como completada
+    await db.query(
+      `UPDATE whatsapp_conversaciones
+       SET estado_conversacion = 'completada',
+           ultimo_mensaje = ?
+       WHERE id = ?`,
+      [motivo, conversacion.id]
+    );
+
+    // Obtener datos de la cita para el mensaje de confirmación
+    const [citas] = await db.query(
+      `SELECT * FROM citas WHERE ID = ?`,
+      [conversacion.cita_id]
+    );
+
+    if (citas.length > 0) {
+      const cita = citas[0];
+
+      // Enviar mensaje de confirmación
+      const mensajeConfirmacion = `✅ Tu cita ha sido cancelada exitosamente.
+
+📋 Detalles:
+• Servicio: ${cita.SERVICIO}
+• Fecha: ${cita.FECHA_CITA}
+• Hora: ${cita.HORA_CITA}
+• Profesional: ${cita.PROFESIONAL}
+
+Motivo registrado: ${motivo}
+
+Si deseas agendar una nueva cita, comunícate con nosotros al 6077249701.
+
+Gracias por informarnos.`;
+
+      await enviarMensajeTexto(conversacion.telefono, mensajeConfirmacion);
+      console.log('   ✅ Confirmación enviada al paciente');
+
+      // Emitir evento de WebSocket para actualizar dashboard en tiempo real
+      if (global.io) {
+        global.io.emit('cita:cancelada', {
+          citaId: cita.ID,
+          paciente: cita.NOMBRE,
+          servicio: cita.SERVICIO,
+          fecha: cita.FECHA_CITA,
+          motivo: motivo,
+          timestamp: new Date().toISOString()
+        });
+      }
+    }
+
+  } catch (error) {
+    console.error('❌ Error completando cancelación:', error);
+    await enviarMensajeTexto(
+      conversacion.telefono,
+      'Lo sentimos, hubo un error al procesar tu cancelación. Por favor comunícate al 6077249701.'
+    );
+  }
+}
+
+/**
+ * Enviar mensaje de texto simple vía Meta API
+ */
+async function enviarMensajeTexto(numero, texto) {
+  try {
+    const payload = {
+      messaging_product: "whatsapp",
+      to: numero,
+      type: "text",
+      text: {
+        body: texto
+      }
+    };
+
+    const response = await axios.post(
+      META_WA_BASE_URL + '/' + META_PHONE_NUMBER_ID + '/messages',
+      payload,
+      {
+        headers: {
+          Authorization: 'Bearer ' + META_TOKEN,
+          "Content-Type": "application/json",
+        },
+        timeout: 30000,
+      }
+    );
+
+    return { success: true, response: response.data };
+  } catch (error) {
+    console.error('❌ Error enviando mensaje de texto:', error.response?.data || error.message);
+    return { success: false, error: error.message };
+  }
+}
+
 module.exports = {
   sendWhatsAppReminder,
   processWhatsAppReply,
+  verifyWebhook,
+  handleMetaWebhook,
 };
