@@ -13,28 +13,32 @@
 
 ## 🎯 Resumen del Sistema
 
-Este sistema permite a los pacientes cancelar sus citas médicas directamente desde WhatsApp mediante un botón interactivo. El sistema:
+Este sistema permite a los pacientes cancelar o confirmar sus citas médicas directamente desde WhatsApp mediante botones interactivos. El sistema:
 
-- ✅ Envía recordatorios de citas con botón de "Cancelar Cita"
-- ✅ Solicita motivo de cancelación al paciente
-- ✅ Registra todas las cancelaciones en base de datos
+- ✅ Envía recordatorios de citas con botones de "Cancelar Cita" y "Mantener Cita"
+- ✅ Solicita motivo de cancelación al paciente cuando cancela
+- ✅ Confirma la asistencia cuando el paciente mantiene la cita
+- ✅ Registra todas las cancelaciones y confirmaciones en base de datos
 - ✅ Actualiza el dashboard en tiempo real
 - ✅ Envía confirmación automática al paciente
+- ✅ Deshabilita los botones después de cualquier interacción (evita múltiples respuestas)
 
 ---
 
 ## 🔧 Instalación y Configuración
 
-### Paso 1: Ejecutar Migración de Base de Datos
+### Paso 1: Ejecutar Migraciones de Base de Datos
 
 ```bash
 cd backend
 mysql -u tu_usuario -p tu_base_de_datos < migrations/001_add_cancellation_fields.sql
+mysql -u tu_usuario -p tu_base_de_datos < migrations/002_add_confirmada_estado.sql
 ```
 
 Esto creará:
 - Campos de cancelación en tabla `citas`: `MOTIVO_CANCELACION`, `FECHA_CANCELACION`, `CANCELADO_POR`
 - Tabla `whatsapp_conversaciones` para rastrear el flujo de mensajes
+- Estado 'confirmada' en la tabla de conversaciones
 - Índices para mejorar el rendimiento
 
 ### Paso 2: Configurar Variables de Entorno
@@ -161,10 +165,12 @@ Si no puedes asistir, presiona el botón de abajo para cancelarla.
 [Botón: Cancelar Cita] [Botón: Mantener Cita]
 ```
 
-### 2. Paciente Cancela
+### 2A. Flujo de Cancelación
+
+**2A.1. Paciente Cancela**
 El paciente presiona el botón **"Cancelar Cita"**
 
-### 3. Sistema Solicita Motivo
+**2A.2. Sistema Solicita Motivo**
 El sistema responde automáticamente:
 ```
 Por favor, indícanos el motivo de la cancelación de tu cita de MEDICINA GENERAL
@@ -173,13 +179,13 @@ programada para mañana 2025-11-20 a las 10:00:00.
 Escribe tu motivo y te confirmaremos la cancelación.
 ```
 
-### 4. Paciente Envía Motivo
+**2A.3. Paciente Envía Motivo**
 El paciente responde con texto libre:
 ```
 No puedo asistir porque tengo que viajar por trabajo
 ```
 
-### 5. Sistema Confirma
+**2A.4. Sistema Confirma Cancelación**
 El sistema registra la cancelación y envía confirmación:
 ```
 ✅ Tu cita ha sido cancelada exitosamente.
@@ -196,6 +202,39 @@ Si deseas agendar una nueva cita, comunícate con nosotros al 6077249701.
 
 Gracias por informarnos.
 ```
+
+### 2B. Flujo de Confirmación
+
+**2B.1. Paciente Confirma**
+El paciente presiona el botón **"Mantener Cita"**
+
+**2B.2. Sistema Confirma Asistencia**
+El sistema registra la confirmación y envía mensaje:
+```
+✅ ¡Perfecto! Tu asistencia ha sido confirmada.
+
+📋 Detalles de tu cita:
+• Servicio: MEDICINA GENERAL
+• Fecha: 2025-11-20
+• Hora: 10:00:00
+• Profesional: DR. JUAN PEREZ
+
+Te esperamos. Si tienes alguna duda, llámanos al 6077249701.
+
+¡Gracias por confirmar!
+```
+
+### 3. Prevención de Múltiples Respuestas
+
+**Si el paciente intenta presionar otro botón después de haber respondido:**
+```
+⚠️ Ya has respondido anteriormente. Si necesitas ayuda adicional, comunícate al 6077249701.
+```
+
+Este mecanismo previene que los pacientes:
+- Cancelen después de haber confirmado
+- Confirmen después de haber cancelado
+- Envíen múltiples cancelaciones
 
 ---
 
@@ -338,7 +377,7 @@ curl http://localhost:5000/api/dashboard/stats
 - id (INT) - ID único
 - telefono (VARCHAR) - Número del paciente
 - cita_id (INT) - ID de la cita
-- estado_conversacion (VARCHAR) - 'esperando_respuesta', 'esperando_motivo', 'completada'
+- estado_conversacion (VARCHAR) - 'esperando_respuesta', 'esperando_motivo', 'completada', 'confirmada', 'cancelada'
 - mensaje_id (VARCHAR) - ID del mensaje de WhatsApp
 - ultimo_mensaje (TEXT) - Último mensaje recibido
 - created_at (TIMESTAMP)

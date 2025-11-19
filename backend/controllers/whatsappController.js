@@ -594,15 +594,33 @@ async function procesarMensajeEntrante(message, metadata) {
     console.log('   De:', from);
     console.log('   Tipo:', message.type);
 
-    // Manejar botón interactivo (cuando el paciente hace clic en "Cancelar Cita")
+    // Manejar botón interactivo (cuando el paciente hace clic en "Cancelar Cita" o "Mantener Cita")
     if (message.type === 'interactive') {
       const buttonReply = message.interactive.button_reply;
       const buttonId = buttonReply.id;
 
       console.log('   Botón presionado:', buttonId);
 
+      // Verificar si ya existe una conversación procesada para este número
+      const [conversacionesExistentes] = await db.query(
+        `SELECT * FROM whatsapp_conversaciones
+         WHERE telefono = ?
+         AND estado_conversacion IN ('esperando_motivo', 'completada', 'confirmada')
+         AND created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)
+         ORDER BY created_at DESC LIMIT 1`,
+        [from]
+      );
+
+      if (conversacionesExistentes.length > 0) {
+        console.log('   ⚠️ Este paciente ya interactuó con los botones');
+        await enviarMensajeTexto(from, '⚠️ Ya has respondido anteriormente. Si necesitas ayuda adicional, comunícate al 6077249701.');
+        return;
+      }
+
       if (buttonId === 'cancel_appointment') {
         await iniciarFlujoCancelacion(from, messageId);
+      } else if (buttonId === 'keep_appointment') {
+        await confirmarAsistencia(from, messageId);
       }
     }
 
@@ -769,6 +787,89 @@ Gracias por informarnos.`;
     await enviarMensajeTexto(
       conversacion.telefono,
       'Lo sentimos, hubo un error al procesar tu cancelación. Por favor comunícate al 6077249701.'
+    );
+  }
+}
+
+/**
+ * Confirmar asistencia cuando el paciente presiona "Mantener Cita"
+ */
+async function confirmarAsistencia(telefono, messageId) {
+  try {
+    console.log('\n✅ CONFIRMANDO ASISTENCIA');
+    console.log('   Teléfono:', telefono);
+
+    // Buscar la cita del paciente para mañana
+    const [citas] = await db.query(
+      `SELECT * FROM citas
+       WHERE TELEFONO_FIJO = ?
+       AND DATE(FECHA_CITA) = DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+       AND ESTADO IN ('pendiente', 'recordatorio enviado')
+       LIMIT 1`,
+      [telefono.replace('+57', '')]
+    );
+
+    if (citas.length === 0) {
+      console.log('   ⚠️ No se encontró cita para este número');
+      await enviarMensajeTexto(telefono, 'No encontramos una cita programada para mañana con este número.');
+      return;
+    }
+
+    const cita = citas[0];
+    console.log('   ✅ Cita encontrada:', cita.ID);
+
+    // Actualizar el estado de la cita a confirmada
+    await db.query(
+      `UPDATE citas
+       SET ESTADO = 'confirmada'
+       WHERE ID = ?`,
+      [cita.ID]
+    );
+
+    // Registrar la confirmación en la tabla de conversaciones
+    await db.query(
+      `INSERT INTO whatsapp_conversaciones (telefono, cita_id, estado_conversacion, mensaje_id, ultimo_mensaje)
+       VALUES (?, ?, 'confirmada', ?, 'El paciente confirmó su asistencia')
+       ON DUPLICATE KEY UPDATE
+       estado_conversacion = 'confirmada',
+       mensaje_id = ?,
+       ultimo_mensaje = 'El paciente confirmó su asistencia',
+       updated_at = CURRENT_TIMESTAMP`,
+      [telefono, cita.ID, messageId, messageId]
+    );
+
+    // Enviar mensaje de confirmación
+    const mensajeConfirmacion = `✅ ¡Perfecto! Tu asistencia ha sido confirmada.
+
+📋 Detalles de tu cita:
+• Servicio: ${cita.SERVICIO}
+• Fecha: ${cita.FECHA_CITA}
+• Hora: ${cita.HORA_CITA}
+• Profesional: ${cita.PROFESIONAL}
+
+Te esperamos. Si tienes alguna duda, llámanos al 6077249701.
+
+¡Gracias por confirmar!`;
+
+    await enviarMensajeTexto(telefono, mensajeConfirmacion);
+    console.log('   ✅ Confirmación enviada al paciente');
+
+    // Emitir evento de WebSocket para actualizar dashboard en tiempo real
+    if (global.io) {
+      global.io.emit('cita:confirmada', {
+        citaId: cita.ID,
+        paciente: cita.NOMBRE,
+        servicio: cita.SERVICIO,
+        fecha: cita.FECHA_CITA,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+  } catch (error) {
+    console.error('❌ Error confirmando asistencia:', error);
+    await enviarMensajeTexto(
+      telefono,
+      'Lo sentimos, hubo un error al procesar tu confirmación. Por favor comunícate al 6077249701.'
     );
   }
 }
