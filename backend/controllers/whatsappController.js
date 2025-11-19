@@ -192,7 +192,7 @@ async function enviarMensajeConBotonCancelar(numero, citaId, nombrePaciente) {
               type: "reply",
               reply: {
                 id: "keep_appointment",
-                title: "Mantener Cita"
+                title: "Confirmar Cita"
               }
             }
           ]
@@ -255,7 +255,7 @@ async function enviarPlantillaMeta(numero, reminder) {
       to: numero,
       type: "template",
       template: {
-        name: "recordatorio_citas",
+        name: "recordatorio",
         language: { code: "es" },
         components: [
           {
