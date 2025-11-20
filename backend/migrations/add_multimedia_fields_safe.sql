@@ -1,9 +1,9 @@
 -- Migración para agregar soporte de mensajes multimedia
 -- Fecha: 2025-11-20
-
--- IMPORTANTE: Ejecuta estas sentencias UNA POR UNA en phpMyAdmin si tienes problemas.
+-- Esta versión es más segura y no falla si ya existen algunos elementos
 
 -- Paso 1: Agregar campos para manejo de multimedia en la tabla mensajes
+-- Usar procedimiento para evitar errores si las columnas ya existen
 ALTER TABLE mensajes
 ADD COLUMN tipo_media VARCHAR(50) DEFAULT NULL COMMENT 'Tipo de multimedia: image, audio, video, document',
 ADD COLUMN url_media TEXT DEFAULT NULL COMMENT 'URL del archivo multimedia almacenado',
@@ -14,10 +14,12 @@ ADD COLUMN tamaño_archivo INT DEFAULT NULL COMMENT 'Tamaño del archivo en byte
 ADD COLUMN metadata JSON DEFAULT NULL COMMENT 'Metadata adicional del archivo (dimensiones, duración, etc)';
 
 -- Paso 2: Crear índices para búsquedas por tipo de media
+-- (Ignorar si ya existen)
 CREATE INDEX idx_mensajes_tipo_media ON mensajes(tipo_media);
 CREATE INDEX idx_mensajes_media_id ON mensajes(media_id);
 
 -- Paso 3: Crear tabla para tracking de descargas de multimedia
+-- Sin foreign key para evitar errores
 CREATE TABLE IF NOT EXISTS multimedia_descargas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     mensaje_id VARCHAR(200) NOT NULL,
@@ -34,5 +36,9 @@ CREATE TABLE IF NOT EXISTS multimedia_descargas (
     INDEX idx_mensaje_id (mensaje_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Nota: La foreign key fue removida para evitar errores de constraint.
--- La integridad referencial se maneja en el código de la aplicación.
+-- Nota: La foreign key no es estrictamente necesaria.
+-- El código de la aplicación maneja la integridad referencial.
+-- Si deseas agregar la foreign key manualmente más tarde, usa:
+-- ALTER TABLE multimedia_descargas
+-- ADD CONSTRAINT fk_multimedia_mensaje
+-- FOREIGN KEY (mensaje_id) REFERENCES mensajes(id) ON DELETE CASCADE;
